@@ -3,7 +3,6 @@
 import React, { useEffect } from 'react';
 import useWalletStore from '@/stores/wallet.store';
 import useMarketStore from '@/stores/market.store';
-import { fetchWallet } from '@/services/wallet.service';
 import { getSgcPrice } from '@/services/market.service';
 import SGCBalanceCard from '@/components/SGCBalanceCard';
 import SGCPriceTag from '@/components/SGCPriceTag';
@@ -12,15 +11,15 @@ import useAuthStore from '@/stores/auth.store';
 import { useRouter } from 'next/navigation';
 
 const DashboardPage: React.FC = () => {
-  const { wallet, setWallet } = useWalletStore();
+  const { wallet, fetchWallet } = useWalletStore();
   const { sgcPrice, setSgcPrice } = useMarketStore();
   const { logout } = useAuthStore();
   const router = useRouter();
 
   const fetchData = async () => {
     try {
-      const [walletData, priceData] = await Promise.all([fetchWallet(), getSgcPrice()]);
-      setWallet(walletData);
+      await fetchWallet();
+      const priceData = await getSgcPrice();
       setSgcPrice(priceData);
     } catch (error: any) {
       if (error.response?.status === 401) {
@@ -50,7 +49,7 @@ const DashboardPage: React.FC = () => {
       </div>
 
       {wallet ? (
-        <SGCBalanceCard balance={wallet.sgcBalance} valueUsd={wallet.sgcValueUsd} />
+        <SGCBalanceCard balance={wallet.sgcBalance} valueUsd={wallet.sgcValueUsd} fiatBalanceUsd={wallet.fiatBalanceUsd} />
       ) : (
         <p>Loading wallet...</p>
       )}

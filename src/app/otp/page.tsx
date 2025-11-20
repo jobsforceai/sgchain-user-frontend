@@ -7,6 +7,8 @@ import SGCButton from '@/components/SGCButton';
 import SGCCard from '@/components/SGCCard';
 import { loginWithOtp } from '@/services/auth.service';
 import useAuthStore from '@/stores/auth.store';
+import Cookies from 'js-cookie';
+import axios from 'axios';
 
 const OtpPageContent: React.FC = () => {
   const router = useRouter();
@@ -29,12 +31,14 @@ const OtpPageContent: React.FC = () => {
     try {
       const { accessToken } = await loginWithOtp(email, otp);
       setToken(accessToken);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('sgchain_access_token', accessToken);
-      }
+      Cookies.set('sgchain_access_token', accessToken, { expires: 1 }); // Expires in 1 day
       router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'An unexpected error occurred.');
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.error || 'An unexpected error occurred.');
+      } else {
+        setError('An unexpected error occurred.');
+      }
     } finally {
       setLoading(false);
     }

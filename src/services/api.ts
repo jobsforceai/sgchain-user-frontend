@@ -1,12 +1,13 @@
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api',
 });
 
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('sgchain_access_token');
+    const token = Cookies.get('sgchain_access_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
