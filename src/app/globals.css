@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+.footer-grid-mask {
+  /* This lets dashed lines fade out into the gradient nicely */
+  mask-image: linear-gradient(to bottom, transparent 0, black 10%, black 90%, transparent 100%);
+}
+
+@font-face {
+  font-family: 'Cream';
+  src: url('/fonts/cream.ttf') format('truetype');
+  font-weight: 600 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Utility to apply Cream to blue-highlight spans */
+.font-cream { font-family: 'Cream', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+
