@@ -2,69 +2,60 @@
 
 import React, { useEffect } from 'react';
 import useWalletStore from '@/stores/wallet.store';
-import useMarketStore from '@/stores/market.store';
-import { getSgcPrice } from '@/services/market.service';
-import SGCBalanceCard from '@/components/SGCBalanceCard';
-import SGCPriceTag from '@/components/SGCPriceTag';
-import SGCButton from '@/components/SGCButton';
 import useAuthStore from '@/stores/auth.store';
 import { useRouter } from 'next/navigation';
 
+import SGCBalanceCard from '@/components/SGCBalanceCard';
+import SGCCard from '@/components/SGCCard'; // Added missing import
+import Tabs from '@/components/Tabs';
+import BuySGCForm from '@/components/dashboard/BuySGCForm';
+import SellSGCForm from '@/components/dashboard/SellSGCForm';
+import RedeemTransferForm from '@/components/dashboard/RedeemTransferForm';
+import HistoryTab from '@/components/dashboard/HistoryTab';
+
 const DashboardPage: React.FC = () => {
   const { wallet, fetchWallet } = useWalletStore();
-  const { sgcPrice, setSgcPrice } = useMarketStore();
   const { logout } = useAuthStore();
   const router = useRouter();
 
-  const fetchData = async () => {
-    try {
-      await fetchWallet();
-      const priceData = await getSgcPrice();
-      setSgcPrice(priceData);
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        logout();
-        router.push('/login');
-      }
-      console.error('Failed to fetch data:', error);
-    }
-  };
-
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await fetchWallet();
+      } catch (error: any) {
+        if (error.response?.status === 401) {
+          logout();
+          router.push('/login');
+        }
+        console.error('Failed to fetch wallet data:', error);
+      }
+    };
     fetchData();
-    const interval = setInterval(fetchData, 10000); // Auto-refresh every 10 seconds
-    return () => clearInterval(interval);
-  }, []);
+  }, [fetchWallet, logout, router]);
 
-  const handleLogout = () => {
-    logout();
-    router.push('/login');
-  };
+  const tabs = [
+    { label: 'Buy SGC', content: <BuySGCForm /> },
+    { label: 'Sell SGC', content: <SellSGCForm /> },
+    { label: 'Redeem Transfer', content: <RedeemTransferForm /> },
+    { label: 'History', content: <HistoryTab /> },
+  ];
 
   return (
     <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <SGCButton onClick={handleLogout}>Logout</SGCButton>
-      </div>
+      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
 
-      {wallet ? (
-        <SGCBalanceCard balance={wallet.sgcBalance} valueUsd={wallet.sgcValueUsd} fiatBalanceUsd={wallet.fiatBalanceUsd} />
-      ) : (
-        <p>Loading wallet...</p>
-      )}
-
-      <div className="mt-4">
-        {sgcPrice ? (
-          <SGCPriceTag price={sgcPrice.priceUsd} symbol={sgcPrice.symbol} />
+      <div className="mb-8">
+        {wallet ? (
+          <SGCBalanceCard balance={wallet.sgcBalance} valueUsd={wallet.sgcValueUsd} fiatBalanceUsd={wallet.fiatBalanceUsd} />
         ) : (
-          <p>Loading price...</p>
+          <p>Loading wallet...</p>
         )}
       </div>
+
+      <SGCCard>
+        <Tabs tabs={tabs} />
+      </SGCCard>
       
-      <div className="mt-4">
-        <SGCButton onClick={fetchData}>Refresh</SGCButton>
-      </div>
     </div>
   );
 };
