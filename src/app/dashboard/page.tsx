@@ -1,17 +1,15 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import useWalletStore from '@/stores/wallet.store';
-import useAuthStore from '@/stores/auth.store';
 import { useRouter } from 'next/navigation';
+import React, { useEffect } from 'react';
 
 import SGCBalanceCard from '@/components/SGCBalanceCard';
-import SGCCard from '@/components/SGCCard'; // Added missing import
+import SGCCard from '@/components/SGCCard';
 import Tabs from '@/components/Tabs';
-import BuySGCForm from '@/components/dashboard/BuySGCForm';
-import SellSGCForm from '@/components/dashboard/SellSGCForm';
-import RedeemTransferForm from '@/components/dashboard/RedeemTransferForm';
 import HistoryTab from '@/components/dashboard/HistoryTab';
+import LiveTransactions from '@/components/dashboard/LiveTransactions';
+import useAuthStore from '@/stores/auth.store';
+import useWalletStore from '@/stores/wallet.store';
 
 const DashboardPage: React.FC = () => {
   const { wallet, fetchWallet } = useWalletStore();
@@ -34,9 +32,6 @@ const DashboardPage: React.FC = () => {
   }, [fetchWallet, logout, router]);
 
   const tabs = [
-    { label: 'Buy SGC', content: <BuySGCForm /> },
-    { label: 'Sell SGC', content: <SellSGCForm /> },
-    { label: 'Redeem Transfer', content: <RedeemTransferForm /> },
     { label: 'History', content: <HistoryTab /> },
   ];
 
@@ -50,6 +45,10 @@ const DashboardPage: React.FC = () => {
         ) : (
           <p>Loading wallet...</p>
         )}
+      </div>
+
+      <div className="mb-8">
+        <LiveTransactions />
       </div>
 
       <SGCCard>

@@ -20,6 +20,8 @@ const Sidebar: React.FC = () => {
 
   const navLinks = [
     { href: '/dashboard', label: 'Dashboard' },
+    { href: '/token', label: 'Create Token' },
+    { href: '/swap', label: 'Swap' },
     { href: '/wallet', label: 'Wallet' },
     { href: '/kyc', label: 'KYC' },
     { href: '/withdraw', label: 'Withdraw' },

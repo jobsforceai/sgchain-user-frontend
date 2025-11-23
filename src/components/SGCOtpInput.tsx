@@ -76,7 +76,9 @@ const SGCOtpInput: React.FC<SGCOtpInputProps> = ({
           onChange={(e) => handleChange(e, index)}
           onKeyDown={(e) => handleKeyDown(e, index)}
           onPaste={handlePaste}
-          ref={(el) => (inputRefs.current[index] = el)}
+          ref={(el) => {
+            inputRefs.current[index] = el;
+          }}
           className="w-10 h-10 text-center text-2xl border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 disabled:bg-gray-100"
           disabled={disabled}
         />
