@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import useWalletStore from '@/stores/wallet.store';
 import SGCButton from '../SGCButton';
 import SGCInput from '../SGCInput';
+import SGCCard from '../SGCCard';
 
 const SellSGCForm: React.FC = () => {
   const { wallet, sellSgc, loading, error, fetchWallet } = useWalletStore();
@@ -42,10 +43,9 @@ const SellSGCForm: React.FC = () => {
 
   return (
     <div className="max-w-md mx-auto">
-      <div className="bg-gray-50 p-4 rounded-md mb-6 border">
-        <p className="text-sm text-gray-500">Available SGC Balance</p>
+      <SGCCard className="mb-6" title="Available SGC Balance">
         <p className="text-2xl font-bold text-gray-800">{wallet?.sgcBalance?.toFixed(4) || '0.0000'} SGC</p>
-      </div>
+      </SGCCard>
       <form onSubmit={handleSubmit} className="space-y-4">
         <SGCInput
           label="Amount of SGC to Sell"
@@ -56,7 +56,7 @@ const SellSGCForm: React.FC = () => {
         />
         {formError && <p className="text-red-500 text-sm">{formError}</p>}
         {formSuccess && <p className="text-green-500 text-sm">{formSuccess}</p>}
-        <SGCButton type="submit" disabled={loading} className="w-full">
+        <SGCButton type="submit" disabled={loading} variant="brand" className="w-full md:w-auto">
           {loading ? 'Processing...' : 'Sell SGC'}
         </SGCButton>
       </form>

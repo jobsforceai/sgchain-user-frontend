@@ -130,18 +130,19 @@ const EditTokenForm: React.FC<EditTokenFormProps> = ({ id, isViewOnly = false })
       </div>
 
       <div className="flex justify-between mt-8 border-t pt-6">
-        <SGCButton onClick={handleBack}>
+        <SGCButton onClick={handleBack} variant="outline">
           Back
         </SGCButton>
-        
+
         {!isViewOnly ? (
           <div className="flex gap-4">
-            <SGCButton onClick={handleSave} disabled={loading} className="bg-green-500 hover:bg-green-700">
+            <SGCButton onClick={handleSave} disabled={loading} variant="success">
               {loading ? 'Saving...' : 'Save Changes'}
             </SGCButton>
             <SGCButton 
               onClick={() => setActiveStep(s => Math.min(steps.length - 1, s + 1))} 
               disabled={!isStepComplete() || activeStep === steps.length - 1}
+              variant="primary"
             >
               Next
             </SGCButton>
@@ -151,6 +152,7 @@ const EditTokenForm: React.FC<EditTokenFormProps> = ({ id, isViewOnly = false })
             <SGCButton 
               onClick={() => setActiveStep(s => Math.min(steps.length - 1, s + 1))} 
               disabled={activeStep === steps.length - 1}
+              variant="primary"
             >
               Next
             </SGCButton>

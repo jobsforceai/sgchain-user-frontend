@@ -45,8 +45,8 @@ const RedeemTransferForm: React.FC = () => {
             />
             {formError && <p className="text-red-500 text-sm">{formError}</p>}
             {formSuccess && <p className="text-green-500 text-sm">{formSuccess}</p>}
-            <SGCButton type="submit" disabled={loading} className="w-full">
-                {loading ? 'Redeeming...' : 'Redeem Transfer'}
+            <SGCButton type="submit" disabled={loading} variant="brand" className="w-full md:w-auto">
+              {loading ? 'Redeeming...' : 'Redeem Transfer'}
             </SGCButton>
         </form>
     </div>

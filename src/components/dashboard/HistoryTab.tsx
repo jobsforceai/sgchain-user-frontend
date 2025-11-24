@@ -33,42 +33,55 @@ const HistoryTab: React.FC = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex items-center gap-3 mb-4">
         <input
           type="text"
           placeholder="Search transactions..."
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
-          className="shadow-sm appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          className="w-full rounded-md bg-white/60 backdrop-blur-sm px-3 py-2 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2"
+          style={{ boxShadow: '0 0 0 3px rgba(1,33,203,0.12)' }}
         />
-        {/* Add filter dropdown if needed */}
+
+        <select
+          value={filterType}
+          onChange={e => setFilterType(e.target.value)}
+          className="rounded-md bg-white/60 backdrop-blur-sm px-3 py-2 text-sm"
+        >
+          <option value="ALL">All</option>
+          <option value="PAYMENT">Payment</option>
+          <option value="WITHDRAWAL">Withdrawal</option>
+          <option value="DEPOSIT">Deposit</option>
+        </select>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white text-gray-800">
-          <thead>
-            <tr className="bg-gray-50">
-              <th className="py-2 px-4 text-left font-semibold">Date</th>
-              <th className="py-2 px-4 text-left font-semibold">Type</th>
-              <th className="py-2 px-4 text-left font-semibold">Amount</th>
-              <th className="py-2 px-4 text-left font-semibold">Details</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading && <tr><td colSpan={4} className="text-center py-4">Loading...</td></tr>}
-            {error && <tr><td colSpan={4} className="text-center py-4 text-red-500">{error}</td></tr>}
-            {!loading && filteredTransactions.map(tx => (
-              <tr key={tx.id} className="border-b border-gray-200">
-                <td className="py-2 px-4">{new Date(tx.createdAt).toLocaleString()}</td>
-                <td className="py-2 px-4">{formatType(tx.type)}</td>
-                <td className={`py-2 px-4 font-mono ${tx.amount < 0 ? 'text-red-500' : 'text-green-600'}`}>
-                  {tx.amount > 0 ? '+' : ''}{tx.amount.toFixed(4)} {tx.currency}
-                </td>
-                <td className="py-2 px-4">{tx.peerInfo?.fullName || 'N/A'}</td>
+        <div className="rounded-md bg-white/60 backdrop-blur-sm">
+          <table className="min-w-full text-gray-800">
+            <thead>
+              <tr className="bg-white/30 sticky top-0">
+                <th className="py-2 px-4 text-left font-semibold">Date</th>
+                <th className="py-2 px-4 text-left font-semibold">Type</th>
+                <th className="py-2 px-4 text-left font-semibold">Amount</th>
+                <th className="py-2 px-4 text-left font-semibold">Details</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {loading && <tr><td colSpan={4} className="text-center py-4">Loading...</td></tr>}
+              {error && <tr><td colSpan={4} className="text-center py-4 text-red-500">{error}</td></tr>}
+              {!loading && filteredTransactions.map((tx, idx) => (
+                <tr key={tx.id} className={`transition-colors ${idx % 2 === 0 ? 'bg-white/0' : 'bg-white/20'} hover:bg-white/30`}>
+                  <td className="py-2 px-4 text-sm">{new Date(tx.createdAt).toLocaleString()}</td>
+                  <td className="py-2 px-4 text-sm">{formatType(tx.type)}</td>
+                  <td className={`py-2 px-4 font-mono text-sm ${tx.amount < 0 ? 'text-red-500' : 'text-green-600'}`}>
+                    {tx.amount > 0 ? '+' : ''}{tx.amount.toFixed(4)} {tx.currency}
+                  </td>
+                  <td className="py-2 px-4 text-sm">{tx.peerInfo?.fullName || 'N/A'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

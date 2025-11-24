@@ -56,7 +56,7 @@ const ExternalTransferForm: React.FC = () => {
           <p className="text-sm text-gray-500">Your Redeem Code</p>
           <p className="text-2xl font-bold font-mono tracking-widest">{transferResult.code}</p>
         </div>
-        <SGCButton onClick={handleCopyToClipboard} className="w-full mb-2">
+        <SGCButton onClick={handleCopyToClipboard} variant="brand" className="w-full md:w-auto mb-2">
           {copied ? 'Copied!' : 'Copy Code'}
         </SGCButton>
         <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mt-4 text-left">
@@ -86,7 +86,7 @@ const ExternalTransferForm: React.FC = () => {
           step="any"
         />
         {(formError || error) && <p className="text-red-500 text-sm">{formError || error}</p>}
-        <SGCButton type="submit" disabled={loading} className="w-full">
+        <SGCButton type="submit" disabled={loading} variant="brand" className="w-full md:w-auto">
           {loading ? 'Generating Code...' : 'Generate Transfer Code'}
         </SGCButton>
       </form>

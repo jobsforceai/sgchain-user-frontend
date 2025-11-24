@@ -27,7 +27,7 @@ const TokenList: React.FC<TokenListProps> = ({ onStartCreate }) => {
     <SGCCard>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Your Tokens</h2>
-        <SGCButton onClick={onStartCreate}>Create New Token</SGCButton>
+        <SGCButton onClick={onStartCreate} className="md:hidden">Create New Token</SGCButton>
       </div>
 
       {loading && <p>Loading tokens...</p>}

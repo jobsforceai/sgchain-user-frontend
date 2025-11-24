@@ -25,7 +25,7 @@ const Sidebar: React.FC = () => {
     { href: '/wallet', label: 'Wallet' },
     { href: '/kyc', label: 'KYC' },
     { href: '/withdraw', label: 'Withdraw' },
-    { href: '/profile', label: 'Profile' },
+    // { href: '/profile', label: 'Profile' },
   ];
 
   return (

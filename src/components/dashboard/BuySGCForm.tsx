@@ -90,7 +90,7 @@ const BuySGCForm: React.FC = () => {
           <SGCInput label="Reference Note (Optional)" type="text" value={referenceNote} onChange={e => setReferenceNote(e.target.value)} />
           {error && <p className="text-red-500 text-sm">{error}</p>}
           {success && <p className="text-green-500 text-sm">{success}</p>}
-          <SGCButton type="submit" disabled={loading}>{loading ? 'Submitting...' : 'Submit Request'}</SGCButton>
+          <SGCButton type="submit" disabled={loading} variant="brand" className="w-full md:w-auto">{loading ? 'Submitting...' : 'Submit Request'}</SGCButton>
         </form>
       </div>
     </div>
