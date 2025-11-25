@@ -17,7 +17,7 @@ const LiveTransactions: React.FC = () => {
   };
 
   return (
-    <SGCCard title="Live Transaction Feed">
+    <SGCCard title="Live Transaction Feed" className="sgc-glass rounded-xl border border-gray-200/40 overflow-hidden">
         <div className="relative h-96 overflow-y-auto">
             {!isConnected && (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-50/50">
@@ -30,7 +30,7 @@ const LiveTransactions: React.FC = () => {
                 </div>
             )}
             {transactions.length > 0 && (
-                <table className="min-w-full divide-y divide-gray-200">
+                <table className="min-w-full divide-y divide-gray-200 bg-white/70 backdrop-blur-sm">
                     <thead className="bg-gray-50 sticky top-0">
                         <tr>
                         <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hash</th>

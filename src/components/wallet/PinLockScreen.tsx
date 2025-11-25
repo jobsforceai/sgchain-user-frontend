@@ -5,6 +5,7 @@ import useWalletStore from '@/stores/wallet.store';
 import EmojiKeypad from './EmojiKeypad';
 import SGCButton from '../SGCButton';
 import SGCCard from '../SGCCard';
+import { Delete } from 'lucide-react';
 
 interface PinLockScreenProps {
   isSettingPin: boolean;
@@ -37,16 +38,9 @@ const PinLockScreen: React.FC<PinLockScreenProps> = ({ isSettingPin }) => {
   const handleDelete = () => {
     if (isConfirming) {
       setConfirmPin(p => p.slice(0, -1));
-    } else {
-      setPinInput(p => p.slice(0, -1));
     }
-  };
-
-  const handleClear = () => {
-    if (isConfirming) {
-      setConfirmPin([]);
-    } else {
-      setPinInput([]);
+    else {
+      setPinInput(p => p.slice(0, -1));
     }
   };
 
@@ -136,10 +130,13 @@ const PinLockScreen: React.FC<PinLockScreenProps> = ({ isSettingPin }) => {
           </span>
         ))}
       </div>
-      <EmojiKeypad onKeyPress={handleKeyPress} onDelete={handleDelete} onClear={handleClear} />
-      <div className="mt-6">
+      <EmojiKeypad onKeyPress={handleKeyPress} />
+      <div className="mt-6 flex items-center gap-2">
         <SGCButton onClick={handleSubmit} disabled={loading} className="w-full">
           {loading ? 'Processing...' : (isSettingPin && !isConfirming) ? 'Next' : 'Submit'}
+        </SGCButton>
+        <SGCButton onClick={handleDelete} variant="outline" className="p-2">
+          <Delete size={24} />
         </SGCButton>
       </div>
       {localError && <p className="text-red-500 text-sm mt-4 text-center">{localError}</p>}

@@ -16,3 +16,17 @@
 /* Utility to apply Cream to blue-highlight spans */
 .font-cream { font-family: 'Cream', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
 
+:root {
+  --sg-primary: #0121cb;
+  --sg-accent: #1e3bcd;
+  --sg-dark: #232323;
+  --sg-soft: #ABB4E5;
+}
+
+/* glass card helper */
+.sgc-glass {
+  background: radial-gradient(circle at top right, var(--sg-soft) 0%, rgba(213,217,242,0.75) 28%, rgba(255,255,255,0.92) 61%);
+  border: 1px solid rgba(212,212,218,0.5);
+  backdrop-filter: blur(6px);
+}
+
