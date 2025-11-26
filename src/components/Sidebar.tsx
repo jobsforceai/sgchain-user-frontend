@@ -15,7 +15,6 @@ const Sidebar: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    router.push('/login');
   };
 
   const navLinks = [

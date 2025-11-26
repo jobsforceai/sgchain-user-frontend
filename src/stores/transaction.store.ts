@@ -1,23 +1,40 @@
 import { create } from "zustand";
 import socketService from "@/services/socket.service";
 
-interface Transaction {
+interface BlockHeader {
+  difficulty: string;
+  extraData: string;
+  gasLimit: string;
+  gasUsed: string;
   hash: string;
-  from: string;
-  to: string | null;
-  value: string;
+  logsBloom: string;
+  miner: string;
+  mixHash: string;
+  nonce: string;
+  number: string;
+  parentHash: string;
+  receiptsRoot: string;
+  sha3Uncles: string;
+  stateRoot: string;
   timestamp: string;
+  transactionsRoot: string;
+}
+
+interface NewTransactionEvent {
+  hash: string;
 }
 
 interface TransactionState {
-  transactions: Transaction[];
+  pendingTransactions: NewTransactionEvent[];
+  recentBlocks: BlockHeader[];
   isConnected: boolean;
   connect: () => void;
   disconnect: () => void;
 }
 
 const useTransactionStore = create<TransactionState>((set, get) => ({
-  transactions: [],
+  pendingTransactions: [],
+  recentBlocks: [],
   isConnected: false,
   connect: () => {
     if (get().isConnected) return;
@@ -25,11 +42,17 @@ const useTransactionStore = create<TransactionState>((set, get) => ({
     socketService.connect();
     set({ isConnected: true });
 
-    socketService.on("NEW_TRANSACTIONS", (newTransactions: Transaction[]) => {
-      console.log("[TransactionStore] New Transactions Received:", newTransactions);
+    socketService.on("NEW_TRANSACTION", (newTransaction: NewTransactionEvent) => {
+      console.log("[TransactionStore] New Transaction Received:", newTransaction);
       set((state) => ({
-        // Prepend new transactions and keep a max of 50 for performance
-        transactions: [...newTransactions, ...state.transactions].slice(0, 50),
+        pendingTransactions: [newTransaction, ...state.pendingTransactions].slice(0, 50),
+      }));
+    });
+
+    socketService.on("NEW_BLOCK", (newBlock: BlockHeader) => {
+      console.log("[TransactionStore] New Block Received:", newBlock);
+      set((state) => ({
+        recentBlocks: [newBlock, ...state.recentBlocks].slice(0, 6),
       }));
     });
 
@@ -39,7 +62,7 @@ const useTransactionStore = create<TransactionState>((set, get) => ({
   },
   disconnect: () => {
     socketService.disconnect();
-    set({ isConnected: false, transactions: [] });
+    set({ isConnected: false, pendingTransactions: [], recentBlocks: [] });
   },
 }));
 

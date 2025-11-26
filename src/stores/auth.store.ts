@@ -21,6 +21,8 @@ const useAuthStore = create<AuthState>((set) => ({
   logout: () => {
     if (typeof window !== 'undefined') {
       Cookies.remove('sgchain_access_token');
+      // Redirect to login page after clearing credentials
+      window.location.href = '/login';
     }
     set({ token: null, user: null });
   },

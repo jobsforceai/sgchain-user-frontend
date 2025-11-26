@@ -1,81 +1,76 @@
 "use client"
 
-import React, { useEffect, useRef } from 'react'
-import { createChart, IChartApi, ISeriesApi, CandlestickData } from 'lightweight-charts'
+import React from 'react';
+import { createChart, IChartApi, ISeriesApi, CandlestickData } from 'lightweight-charts';
+import useMarketStore from '@/stores/market.store';
 
 type Props = {
-  data?: CandlestickData[]
   height?: number
 }
 
-const SGCPriceChart: React.FC<Props> = ({ data, height = 300 }) => {
-  const chartContainerRef = useRef<HTMLDivElement | null>(null)
-  const chartRef = useRef<IChartApi | null>(null)
-  const seriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null)
+const SGCPriceChart: React.FC<Props> = ({ height = 300 }) => {
+  const chartContainerRef = React.useRef<HTMLDivElement | null>(null);
+  const chartRef = React.useRef<IChartApi | null>(null);
+  const seriesRef = React.useRef<ISeriesApi<'Candlestick'> | null>(null);
+  const { candles, loading, error } = useMarketStore();
 
-  // Sample mock data if none provided (time in YYYY-MM-DD -> convert to unix timestamp)
-  const sampleData: CandlestickData[] = [
-    { time: '2025-11-01', open: 10, high: 12, low: 9, close: 11 },
-    { time: '2025-11-02', open: 11, high: 13, low: 10, close: 12 },
-    { time: '2025-11-03', open: 12, high: 14, low: 11, close: 13 },
-    { time: '2025-11-04', open: 13, high: 15, low: 12, close: 14 },
-    { time: '2025-11-05', open: 14, high: 16, low: 13, close: 15 },
-    { time: '2025-11-06', open: 15, high: 17, low: 14, close: 16 },
-    { time: '2025-11-07', open: 16, high: 18, low: 15, close: 17 }
-  ]
+  React.useEffect(() => {
+    // If we have data and a container, and the chart hasn't been created yet, create it.
+    if (candles.length > 0 && chartContainerRef.current && !chartRef.current) {
+      console.log('[SGCPriceChart] Data is ready. Initializing chart and setting data.');
+      
+      const chart = createChart(chartContainerRef.current, {
+        width: chartContainerRef.current.clientWidth,
+        height,
+        layout: { background: { color: 'transparent' }, textColor: '#94a3b8' },
+        grid: { vertLines: { visible: false }, horzLines: { color: '#e2e8f0' } },
+        rightPriceScale: { visible: true },
+        timeScale: { timeVisible: true, secondsVisible: false, borderColor: '#e2e8f0' },
+      });
+      chartRef.current = chart;
 
-  useEffect(() => {
-    if (!chartContainerRef.current) return
+      const series = chart.addCandlestickSeries({
+        upColor: '#16a34a',
+        downColor: '#ef4444',
+        borderVisible: false,
+        wickUpColor: '#16a34a',
+        wickDownColor: '#ef4444',
+      });
+      seriesRef.current = series;
 
-    // create chart
-    chartRef.current = createChart(chartContainerRef.current, {
-      width: chartContainerRef.current.clientWidth,
-      height,
-      layout: {
-        background: { color: 'transparent' },
-        textColor: '#94a3b8'
-      },
-      grid: {
-        vertLines: { visible: false },
-        horzLines: { color: '#0f172a22' }
-      },
-      rightPriceScale: { visible: true },
-      timeScale: { timeVisible: true, secondsVisible: false }
-    })
+      series.setData(candles);
 
-    seriesRef.current = chartRef.current.addCandlestickSeries({
-      upColor: '#16a34a',
-      downColor: '#ef4444',
-      borderVisible: false,
-      wickUpColor: '#16a34a',
-      wickDownColor: '#ef4444'
-    })
-
-    // set data
-    seriesRef.current.setData(data ?? sampleData)
-
-    // handle resize
-    const handleResize = () => {
-      if (!chartRef.current || !chartContainerRef.current) return
-      chartRef.current.applyOptions({ width: chartContainerRef.current.clientWidth })
+      const handleResize = () => {
+        if (chartRef.current && chartContainerRef.current) {
+          chartRef.current.resize(chartContainerRef.current.clientWidth, height);
+        }
+      };
+      window.addEventListener('resize', handleResize);
+      
+      // Return a cleanup function for when the component unmounts
+      return () => {
+        window.removeEventListener('resize', handleResize);
+        if (chartRef.current) {
+          chartRef.current.remove();
+          chartRef.current = null;
+        }
+      };
     }
-
-    window.addEventListener('resize', handleResize)
-
-    return () => {
-      window.removeEventListener('resize', handleResize)
-      if (chartRef.current) {
-        chartRef.current.remove()
-        chartRef.current = null
-      }
+    // If the chart already exists, just update the last candle
+    else if (chartRef.current && seriesRef.current && candles.length > 0) {
+      const lastCandle = candles[candles.length - 1];
+      console.log('[SGCPriceChart] Updating live data:', lastCandle);
+      seriesRef.current.update(lastCandle);
     }
-  }, [data, height])
+  }, [candles, height]);
+  
+  // Render loading/error state ONLY if there are no candles
+  if (candles.length === 0) {
+    if (loading) return <div style={{ height }} className="flex items-center justify-center"><p>Loading historical data...</p></div>;
+    if (error) return <div style={{ height }} className="flex items-center justify-center"><p className="text-red-500">{error}</p></div>;
+  }
 
-  return (
-    <div className="w-full">
-      <div ref={chartContainerRef} style={{ width: '100%', height }} />
-    </div>
-  )
-}
+  return <div ref={chartContainerRef} style={{ width: '100%', height }} />;
+};
 
-export default SGCPriceChart
+export default SGCPriceChart;

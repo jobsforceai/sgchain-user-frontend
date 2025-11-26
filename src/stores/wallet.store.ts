@@ -6,7 +6,7 @@ import {
   getWalletDetails,
   fetchWallet,
 } from "@/services/wallet.service";
-import { redeemSagenexTransfer } from "@/services/redeem.service";
+import { redeemSagenexTransfer, redeemSgTradingTransfer } from "@/services/redeem.service";
 import { instantBuySgc } from "@/services/buy.service";
 import { sellSgc } from "@/services/sell.service";
 import Cookies from "js-cookie";
@@ -42,7 +42,7 @@ interface WalletState {
   setPin: (pin: string) => Promise<void>;
   verifyPin: (pin: string) => Promise<void>;
   fetchWalletDetails: () => Promise<void>;
-  redeemTransfer: (transferCode: string) => Promise<void>;
+  redeemTransfer: (transferCode: string) => Promise<{ creditedUsdAmount: number | null }>;
   instantBuySgc: (sgcAmount: number) => Promise<void>;
   sellSgc: (sgcAmount: number) => Promise<void>;
   clearWalletDetails: () => void;
@@ -149,7 +149,18 @@ const useWalletStore = create<WalletState>()(
       redeemTransfer: async (transferCode: string) => {
         set({ loading: true, error: null });
         try {
-          const { usdBalanceAfter } = await redeemSagenexTransfer(transferCode);
+          let usdBalanceAfter;
+          let creditedUsdAmount = null;
+
+          if (transferCode.startsWith('SGT-USD-')) {
+            const response = await redeemSgTradingTransfer(transferCode);
+            usdBalanceAfter = response.usdBalanceAfter;
+            creditedUsdAmount = response.creditedUsdAmount;
+          } else {
+            const response = await redeemSagenexTransfer(transferCode);
+            usdBalanceAfter = response.usdBalanceAfter;
+          }
+          
           const currentWallet = get().wallet;
           if (currentWallet) {
             set({
@@ -159,11 +170,13 @@ const useWalletStore = create<WalletState>()(
           } else {
             await get().fetchWallet();
           }
+
+          return { creditedUsdAmount }; // Return this for the UI
         } catch (error: unknown) {
           if (axios.isAxiosError(error)) {
             set({
               error:
-                error.response?.data?.error || "Failed to redeem transfer",
+                error.response?.data?.message || "Failed to redeem transfer",
               loading: false,
             });
           } else {

@@ -22,8 +22,12 @@ const RedeemTransferForm: React.FC = () => {
     }
 
     try {
-      await redeemTransfer(transferCode);
-      setFormSuccess("Transfer redeemed successfully!");
+      const { creditedUsdAmount } = await redeemTransfer(transferCode);
+      if (creditedUsdAmount) {
+        setFormSuccess(`Successfully redeemed $${creditedUsdAmount.toFixed(2)} USD!`);
+      } else {
+        setFormSuccess("Transfer redeemed successfully!");
+      }
       setTransferCode('');
     } catch (err) {
       setFormError(error || "Failed to redeem transfer.");
@@ -33,7 +37,7 @@ const RedeemTransferForm: React.FC = () => {
   return (
     <div className="max-w-md mx-auto">
         <p className="mb-4 text-sm text-gray-600">
-            Enter the transfer code you received from the Sagenex platform to credit SGC to your wallet.
+            Enter the transfer code you received from SGTrading or Sagenex to credit funds to your wallet.
         </p>
         <form onSubmit={handleSubmit} className="space-y-4">
             <SGCInput
@@ -41,6 +45,7 @@ const RedeemTransferForm: React.FC = () => {
                 type="text"
                 value={transferCode}
                 onChange={(e) => setTransferCode(e.target.value)}
+                placeholder="e.g., SGT-USD-XXXX-XXXX"
                 required
             />
             {formError && <p className="text-red-500 text-sm">{formError}</p>}

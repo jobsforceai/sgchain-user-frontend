@@ -97,7 +97,7 @@ const SGCNavbar: React.FC = () => {
 
           {/* Desktop right actions */}
           <div className="hidden lg:flex items-center">
-            <SGCBlackButton name="Create Account" link="/login" />
+            <SGCBlackButton name="Create Account" link="/register" />
           </div>
 
           {/* Mobile / tablet hamburger */}

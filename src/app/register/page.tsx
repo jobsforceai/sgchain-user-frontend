@@ -10,11 +10,18 @@ import AnimateGSAP from '@/components/AnimateGSAP';
 import Image from 'next/image';
 import Link from 'next/link';
 
-const strengthLabel = (s: number) => {
-  if (s >= 12) return { label: 'Strong', color: 'text-green-500' };
-  if (s >= 8) return { label: 'Good', color: 'text-yellow-500' };
+const calculateStrength = (password: string) => {
+  let score = 0;
+  if (password.length >= 8) score++;
+  if (password.length >= 12) score++;
+  if (/\d/.test(password)) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+
+  if (score >= 4) return { label: 'Strong', color: 'text-green-500' };
+  if (score >= 2) return { label: 'Good', color: 'text-yellow-500' };
   return { label: 'Weak', color: 'text-red-500' };
-}
+};
 
 const RegisterPage: React.FC = () => {
   const router = useRouter();
@@ -26,7 +33,7 @@ const RegisterPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const passwordStrength = useMemo(() => strengthLabel(password.length), [password]);
+  const passwordStrength = useMemo(() => calculateStrength(password), [password]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +45,7 @@ const RegisterPage: React.FC = () => {
     setError(null);
     try {
       await register(fullName, email, password);
-      router.push('/login'); // Redirect to the new login flow
+      router.push('/login');
     } catch (err: any) {
       setError(err.response?.data?.error || 'An unexpected error occurred.');
     } finally {
@@ -51,7 +58,6 @@ const RegisterPage: React.FC = () => {
       <div className="max-w-6xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
 
-          {/* Form Column */}
           <AnimateGSAP className="flex justify-center">
             <SGCCard title="Create an Account" className="w-full max-w-md">
               <form onSubmit={handleRegister} className="space-y-6">
@@ -119,7 +125,6 @@ const RegisterPage: React.FC = () => {
             </SGCCard>
           </AnimateGSAP>
 
-          {/* Illustration Column */}
           <AnimateGSAP className="hidden md:flex flex-col items-start gap-6 pl-6">
             <div data-gsap className="mt-6 w-full">
               <Image src="/register.png" alt="illustration" width={400} height={360} className="object-contain" />
