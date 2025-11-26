@@ -2,14 +2,17 @@ import React from 'react';
 
 interface SGCCardProps {
   children: React.ReactNode;
-  title?: string;
+  title?: React.ReactNode;
+  className?: string;
 }
 
-const SGCCard: React.FC<SGCCardProps> = ({ children, title }) => {
+const SGCCard: React.FC<SGCCardProps> = ({ children, title, className = "" }) => {
   return (
-    <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-      {title && <h2 className="text-xl font-bold mb-4">{title}</h2>}
-      {children}
+    <div className={`bg-white border border-gray-200 rounded-lg p-6 shadow-sm ${className}`}>
+      {title && <h2 className="text-xl font-bold mb-4 text-gray-800">{title}</h2>}
+      <div className="text-gray-700">
+        {children}
+      </div>
     </div>
   );
 };

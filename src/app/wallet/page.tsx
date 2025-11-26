@@ -5,160 +5,170 @@ import useWalletStore from '@/stores/wallet.store';
 import SGCBalanceCard from '@/components/SGCBalanceCard';
 import SGCCard from '@/components/SGCCard';
 import SGCButton from '@/components/SGCButton';
-import SGCInput from '@/components/SGCInput';
-import axios from 'axios';
+import Tabs from '@/components/Tabs';
+import BuySGCForm from '@/components/dashboard/BuySGCForm';
+import SellSGCForm from '@/components/dashboard/SellSGCForm';
+import ExternalTransferForm from '@/components/dashboard/ExternalTransferForm';
+import RedeemTransferForm from '@/components/dashboard/RedeemTransferForm';
+import PinLockScreen from '@/components/wallet/PinLockScreen';
+import { Lock } from 'lucide-react';
 
 const WalletPage: React.FC = () => {
   const {
     wallet,
     walletDetails,
-    pinVerified,
+    pinVerifiedForDetails,
+    isWalletUnlocked,
     loading,
     error,
     fetchWallet,
-    setPin,
-    verifyPin,
     fetchWalletDetails,
     clearWalletDetails,
+    lockWallet,
   } = useWalletStore();
 
-  const [showPinModal, setShowPinModal] = useState(false);
-  const [isSettingPin, setIsSettingPin] = useState(false);
-  const [pinInput, setPinInput] = useState('');
   const [showPrivateKey, setShowPrivateKey] = useState(false);
-  const [modalError, setModalError] = useState<string | null>(null);
+  const [needsDetailsVerification, setNeedsDetailsVerification] = useState(false);
 
   useEffect(() => {
+    // Fetch the basic wallet info on page load to check `isPinSet`
     fetchWallet();
   }, [fetchWallet]);
 
   useEffect(() => {
-    if (pinVerified) {
-      setShowPinModal(false);
+    if (pinVerifiedForDetails) {
       fetchWalletDetails();
+      setNeedsDetailsVerification(false); // Close the PIN screen
     }
-  }, [pinVerified, fetchWalletDetails]);
+  }, [pinVerifiedForDetails, fetchWalletDetails]);
 
   const handleViewDetailsClick = () => {
     if (walletDetails) {
       clearWalletDetails();
       setShowPrivateKey(false);
-      return;
     }
-    
-    if (wallet?.isPinSet) {
-      setIsSettingPin(false);
-    } else {
-      setIsSettingPin(true);
-    }
-    setShowPinModal(true);
-  };
-
-  const handlePinSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setModalError(null);
-    if (!/^\d{4}$/.test(pinInput)) {
-      setModalError("PIN must be exactly 4 digits.");
-      return;
-    }
-    try {
-      if (isSettingPin) {
-        await setPin(pinInput);
-        setIsSettingPin(false); // Switch to verification mode
-        // After setting the PIN, we need to re-fetch the wallet to get the updated isPinSet flag
-        await fetchWallet();
-      } else {
-        await verifyPin(pinInput);
-      }
-      setPinInput(''); // Clear PIN input on success
-    } catch (err: unknown) {
-      let errorMessage = 'An unexpected error occurred.';
-      if (axios.isAxiosError(err) && err.response?.data?.error) {
-        errorMessage = err.response.data.error;
-      }
-      setModalError(errorMessage);
+    else {
+      setNeedsDetailsVerification(true); // Trigger the PIN screen
     }
   };
 
-  const PinModal = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <SGCCard title={isSettingPin ? "Set Wallet PIN" : "Verify PIN to Continue"}>
-        <form onSubmit={handlePinSubmit}>
-          <p className="mb-4 text-sm text-gray-600">
-            {isSettingPin
-              ? "Create a 4-digit PIN to secure your wallet details."
-              : "Enter your 4-digit PIN to view sensitive details."}
-          </p>
-          <SGCInput
-            label="4-Digit PIN"
-            id="pin"
-            type="password"
-            value={pinInput}
-            onChange={(e) => setPinInput(e.target.value)}
-            maxLength={4}
-            required
-          />
-          {modalError && <p className="text-red-500 text-xs italic mt-2">{modalError}</p>}
-          <div className="flex justify-end gap-2 mt-4">
-            <SGCButton type="button" onClick={() => { setShowPinModal(false); setModalError(null); setIsSettingPin(false); }} disabled={loading} className="bg-gray-300 hover:bg-gray-400">
-              Cancel
-            </SGCButton>
-            <SGCButton type="submit" disabled={loading}>
-              {loading ? 'Processing...' : (isSettingPin ? 'Set PIN' : 'Verify')}
-            </SGCButton>
-          </div>
-        </form>
-      </SGCCard>
-    </div>
-  );
+  const tabs = [
+    { label: 'Buy SGC', content: <BuySGCForm /> },
+    { label: 'Sell SGC', content: <SellSGCForm /> },
+    { label: 'SGTrading Transfer', content: <ExternalTransferForm /> },
+    { label: 'Redeem Transfer', content: <RedeemTransferForm /> },
+  ];
 
-  const WalletDetailsView = () => (
-    <div className="mt-6">
-      <SGCCard title="On-Chain Wallet Details">
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">On-Chain Address</label>
-            <p className="font-mono bg-gray-100 p-2 rounded break-all">{walletDetails?.onchainAddress}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Private Key</label>
-            <div className="flex items-center gap-2">
-              <p className="font-mono bg-gray-100 p-2 rounded flex-grow break-all">
-                {showPrivateKey ? walletDetails?.privateKey : '••••••••••••••••••••••••••••••••'}
-              </p>
-              <SGCButton onClick={() => setShowPrivateKey(!showPrivateKey)}>
-                {showPrivateKey ? 'Hide' : 'Show'}
-              </SGCButton>
+  const WalletDetailsView = () => {
+    const handleCopyAddress = () => {
+      if (walletDetails?.onchainAddress) navigator.clipboard.writeText(walletDetails.onchainAddress);
+    };
+
+    const handleCopyPrivateKey = () => {
+      if (walletDetails?.privateKey) navigator.clipboard.writeText(walletDetails.privateKey);
+    };
+
+    return (
+      <div className="mt-6">
+        <SGCCard title="On-Chain Wallet Details">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">On-Chain Address</label>
+              <div className="flex items-start gap-3">
+                <p className="font-mono bg-gray-100 p-2 rounded break-all grow">{walletDetails?.onchainAddress}</p>
+                <SGCButton variant="outline" onClick={handleCopyAddress} className="py-1 px-3 text-sm">Copy</SGCButton>
+              </div>
             </div>
+            {pinVerifiedForDetails && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Private Key</label>
+                  <div className="flex items-center gap-2">
+                    <p className="font-mono bg-gray-100 p-2 rounded grow break-all">
+                      {showPrivateKey ? walletDetails?.privateKey : '••••••••••••••••••••••••••••••••'}
+                    </p>
+                    <div className="flex gap-2">
+                      <SGCButton variant="outline" onClick={() => setShowPrivateKey(!showPrivateKey)} className="py-1 px-3 text-sm">
+                        {showPrivateKey ? 'Hide' : 'Show'}
+                      </SGCButton>
+                      <SGCButton variant="outline" onClick={handleCopyPrivateKey} className="py-1 px-3 text-sm">
+                        Copy
+                      </SGCButton>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-yellow-50 border-l-4 border-yellow-300 text-yellow-800 p-3 mt-4">
+                  <p className="font-bold">Security Warning</p>
+                  <p className="text-sm">Never share your private key. Anyone with it can access your funds. Store it securely offline.</p>
+                </div>
+              </>
+            )}
           </div>
-          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mt-4">
-            <p className="font-bold">Security Warning</p>
-            <p>Never share your private key. Anyone with it can access your funds. Store it securely offline.</p>
-          </div>
-        </div>
-      </SGCCard>
-    </div>
-  );
+        </SGCCard>
+      </div>
+    );
+  };
+
+  if (!wallet) {
+    return <div className="container mx-auto p-4 text-center">Loading wallet status...</div>;
+  }
+
+  // Show main lock screen if wallet isn't unlocked
+  if (!isWalletUnlocked) {
+    return (
+      <div className="container mx-auto p-4">
+        <PinLockScreen isSettingPin={!wallet.isPinSet} />
+      </div>
+    );
+  }
+
+  // Show details verification screen if triggered
+  if (needsDetailsVerification) {
+    return (
+      <div className="container mx-auto p-4">
+        <PinLockScreen isSettingPin={false} />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-4">
-      {showPinModal && <PinModal />}
       <h1 className="text-3xl font-bold mb-4">Wallet</h1>
       {error && <p className="text-red-500 bg-red-100 p-3 rounded mb-4">{error}</p>}
-      {wallet ? (
-        <SGCBalanceCard balance={wallet.sgcBalance} valueUsd={wallet.sgcValueUsd} fiatBalanceUsd={wallet.fiatBalanceUsd} />
-      ) : loading ? (
+      {loading && !wallet ? (
         <p>Loading wallet...</p>
+      ) : wallet ? (
+        <SGCBalanceCard balance={wallet.sgcBalance} valueUsd={wallet.sgcValueUsd} fiatBalanceUsd={wallet.fiatBalanceUsd} />
       ) : null}
 
       <div className="mt-6">
-        <SGCButton onClick={handleViewDetailsClick} disabled={loading}>
-          {walletDetails ? 'Clear & Hide Details' : 'View On-Chain Details'}
+        <SGCButton onClick={handleViewDetailsClick} disabled={loading} className={walletDetails ? '' : 'hidden'}>
+          Clear & Hide Details
         </SGCButton>
       </div>
 
-      {loading && !wallet && <p>Loading details...</p>}
-      {walletDetails && <WalletDetailsView />}
+      {/* Main content area */}
+      <div className="relative mt-6">
+        {/* Blurred overlay when details are hidden */}
+        {!walletDetails && (
+          <div className="absolute inset-0 min-h-[400px] flex items-center justify-center bg-black/10 backdrop-blur-md rounded-lg z-10 border border-[var(--sg-primary)]/50 shadow-lg">
+            <SGCButton onClick={handleViewDetailsClick} disabled={loading} className="px-6 py-3 text-lg">
+              <Lock className="mr-2 h-5 w-5" />
+              View On-Chain Details
+            </SGCButton>
+          </div>
+        )}
+
+        {/* The actual content, which will be blurred by the overlay */}
+        <div className={!walletDetails ? 'filter blur-md' : ''}>
+          <WalletDetailsView />
+          <div className="mt-8">
+            <SGCCard>
+              <Tabs tabs={tabs} />
+            </SGCCard>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
