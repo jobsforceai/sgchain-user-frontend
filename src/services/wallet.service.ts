@@ -1,8 +1,7 @@
 import api from "./api";
 import Cookies from 'js-cookie';
 import axios from 'axios';
-
-const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api';
+import { API_BASE_URL } from './apiConfig';
 
 export const fetchWallet = () =>
   api.get("/me/wallet").then(r => r.data);
@@ -18,7 +17,7 @@ export const getWalletDetails = () => {
   
   // Create a new axios instance without the interceptor for this specific call
   const walletApi = axios.create({
-    baseURL,
+    baseURL: API_BASE_URL,
   });
 
   return walletApi.get("/me/wallet/details", {

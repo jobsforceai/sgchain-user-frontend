@@ -1,8 +1,7 @@
 import api from "./api";
 import Cookies from 'js-cookie';
 import axios from 'axios';
-
-const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api';
+import { API_BASE_URL } from './apiConfig';
 
 export interface QuotePayload {
   tokenIn: string;
@@ -39,7 +38,7 @@ export const executeSwap = (payload: ExecuteSwapPayload): Promise<ExecuteSwapRes
 
     // Create a new axios instance for this specific call to use the wallet access token
     const swapApi = axios.create({
-      baseURL,
+      baseURL: API_BASE_URL,
     });
   
     return swapApi.post("/swap/execute", payload, {
