@@ -1,6 +1,6 @@
-import api from "./api";
 import axios from "axios";
 import { CandlestickData } from "lightweight-charts";
+import { MARKET_API_BASE_URL } from "./apiConfig";
 
 export type SgcCandle = Omit<CandlestickData, 'time'> & {
   time: number;
@@ -9,7 +9,7 @@ export type SgcCandle = Omit<CandlestickData, 'time'> & {
 
 // Create a separate axios instance specifically for the v1 market API
 const marketApi = axios.create({
-  baseURL: (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000') + '/api/v1',
+  baseURL: MARKET_API_BASE_URL,
 });
 
 export const getMarketCandles = (

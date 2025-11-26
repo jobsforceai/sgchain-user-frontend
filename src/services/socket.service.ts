@@ -1,6 +1,5 @@
 import { io, Socket } from "socket.io-client";
-
-const SOCKET_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+import { SOCKET_URL } from "./apiConfig";
 
 class SocketService {
   public socket: Socket | null = null;
