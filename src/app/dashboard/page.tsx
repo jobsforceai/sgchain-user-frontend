@@ -54,7 +54,7 @@ const DashboardPage: React.FC = () => {
       <span>SGC Price (USD)</span>
       {livePrice && (
         <span className="text-lg font-mono bg-green-100 text-green-800 px-2 py-1 rounded">
-          ${livePrice.toFixed(2)}
+          ${livePrice}
         </span>
       )}
     </div>

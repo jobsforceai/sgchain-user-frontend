@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import useTransactionStore from '@/stores/transaction.store';
 import SGCCard from '../SGCCard';
 import Tabs from '../Tabs';
@@ -42,51 +42,72 @@ const LiveTransactions: React.FC = () => {
     </div>
   );
 
-  const LatestBlocksView = () => (
-    <div className="relative h-80 overflow-y-auto p-1 space-y-2">
-      {recentBlocks.length > 0 ? (
-        recentBlocks.map((block, index) => (
-          <div
-            key={block.hash}
-            className="p-3 bg-white/80 border border-gray-200/80 rounded-lg shadow-sm animate-fade-in-down transition-all duration-300"
-            style={{ 
-              animationDelay: `${index * 100}ms`,
-              opacity: 1 - (index / 8),
-              transform: `scale(${1 - (index / 50)})`,
-             }}
-          >
-            <div className="flex justify-between items-start">
-              <div className="flex items-center gap-3">
-                  <div className="bg-blue-100 p-2 rounded-md">
-                    <CubeIcon className="h-5 w-5 text-blue-600" />
+  const LatestBlocksView = () => {
+    const containerRef = useRef<HTMLDivElement | null>(null);
+    // Render oldest first so newest appears at the bottom
+    const blocks = [...recentBlocks].reverse();
+
+    useEffect(() => {
+      // Auto-scroll to bottom when new blocks arrive
+      if (containerRef.current) {
+        containerRef.current.scrollTop = containerRef.current.scrollHeight;
+      }
+    }, [recentBlocks]);
+
+    return (
+      <div ref={containerRef} className="relative h-80 overflow-y-auto p-1 space-y-2">
+        {blocks.length > 0 ? (
+          blocks.map((block, index) => {
+            const total = blocks.length;
+            const weight = total > 1 ? index / (total - 1) : 1; // 0..1, oldest->newest
+            const opacity = 0.6 + weight * 0.4; // newer = more opaque
+            const scale = 0.95 + weight * 0.05; // newer = slightly larger
+            const animationDelay = `${index * 80}ms`;
+
+            return (
+              <div
+                key={block.hash + index}
+                className="p-3 bg-white/80 border border-gray-200/80 rounded-lg shadow-sm animate-fade-in-down transition-all duration-300"
+                style={{
+                  animationDelay,
+                  opacity,
+                  transform: `scale(${scale})`,
+                }}
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-blue-100 p-2 rounded-md">
+                      <CubeIcon className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-md text-blue-700">Block #{parseInt(block.number, 16)}</p>
+                      <p className="text-xs text-gray-500">{formatTimestamp(block.timestamp)}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold text-md text-blue-700">Block #{parseInt(block.number, 16)}</p>
-                    <p className="text-xs text-gray-500">{formatTimestamp(block.timestamp)}</p>
-                  </div>
+                  <p className="text-xs text-gray-400">Gas Used: {parseInt(block.gasUsed, 16)}</p>
+                </div>
+                <div className="mt-3">
+                  <p className="text-xs text-gray-500 flex items-center gap-1">
+                    <DocumentDuplicateIcon className="h-3 w-3" />
+                    Block Hash
+                  </p>
+                  <p className="font-mono text-xs break-all text-gray-600">{block.hash}</p>
+                </div>
               </div>
-              <p className="text-xs text-gray-400">Gas Used: {parseInt(block.gasUsed, 16)}</p>
-            </div>
-            <div className="mt-3">
-              <p className="text-xs text-gray-500 flex items-center gap-1">
-                <DocumentDuplicateIcon className="h-3 w-3" />
-                Block Hash
-              </p>
-              <p className="font-mono text-xs break-all text-gray-600">{block.hash}</p>
-            </div>
+            );
+          })
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <p className="text-gray-500">Waiting for new blocks...</p>
           </div>
-        ))
-      ) : (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <p className="text-gray-500">Waiting for new blocks...</p>
-        </div>
-      )}
-    </div>
-  );
+        )}
+      </div>
+    );
+  };
 
   const tabs = [
-    { label: 'Pending Transactions', content: <PendingTransactionsView /> },
     { label: 'Latest Blocks', content: <LatestBlocksView /> },
+    { label: 'Pending Transactions', content: <PendingTransactionsView /> },
   ];
 
   return (
