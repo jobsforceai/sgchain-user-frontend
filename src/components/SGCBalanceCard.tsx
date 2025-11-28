@@ -21,14 +21,14 @@ const SGCBalanceCard: React.FC<SGCBalanceCardProps> = ({ balance, valueUsd, fiat
           </div>
 
           <div className="mt-2">
-            <p className="text-4xl md:text-5xl font-extrabold leading-tight">{balance.toFixed(4)}</p>
+            <p className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">{balance.toFixed(4)}</p>
             <p className="text-sm text-gray-500">≈ <span className="font-semibold text-gray-700">${valueUsd.toFixed(2)}</span></p>
           </div>
         </div>
 
-        <div>
+        <div className="mt-4 md:mt-0">
           <p className="text-sm text-gray-600">USD Balance</p>
-          <p className="text-3xl font-bold mt-2">${(fiatBalanceUsd || 0).toFixed(2)}</p>
+          <p className="text-2xl sm:text-3xl font-bold mt-2">${(fiatBalanceUsd || 0).toFixed(2)}</p>
           <p className="text-sm text-gray-500 mt-1">Available for instant buy</p>
         </div>
       </div>

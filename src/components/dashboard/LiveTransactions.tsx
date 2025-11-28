@@ -27,7 +27,7 @@ const LiveTransactions: React.FC = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {pendingTransactions.map((tx, index) => (
               <tr key={`${tx.hash}-${index}`} className="animate-fade-in">
-                <td className="px-4 py-4 whitespace-nowrap text-sm font-mono text-gray-700 hover:text-blue-600 transition-colors">
+                <td className="px-4 py-4 whitespace-normal break-all text-xs sm:text-sm font-mono text-gray-700 hover:text-blue-600 transition-colors">
                   {tx.hash}
                 </td>
               </tr>
@@ -74,17 +74,17 @@ const LiveTransactions: React.FC = () => {
                   transform: `scale(${scale})`,
                 }}
               >
-                <div className="flex justify-between items-start">
+                <div className="flex flex-col sm:flex-row justify-between items-start">
                   <div className="flex items-center gap-3">
                     <div className="bg-blue-100 p-2 rounded-md">
                       <CubeIcon className="h-5 w-5 text-blue-600" />
                     </div>
                     <div>
-                      <p className="font-bold text-md text-blue-700">Block #{parseInt(block.number, 16)}</p>
+                      <p className="font-bold text-md sm:text-lg text-blue-700">Block #{parseInt(block.number, 16)}</p>
                       <p className="text-xs text-gray-500">{formatTimestamp(block.timestamp)}</p>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-400">Gas Used: {parseInt(block.gasUsed, 16)}</p>
+                  <p className="text-xs text-gray-400 mt-2 sm:mt-0">Gas Used: {parseInt(block.gasUsed, 16)}</p>
                 </div>
                 <div className="mt-3">
                   <p className="text-xs text-gray-500 flex items-center gap-1">

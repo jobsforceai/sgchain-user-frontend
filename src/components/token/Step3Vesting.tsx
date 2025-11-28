@@ -49,7 +49,7 @@ const Step3Vesting: React.FC<Step3VestingProps> = ({ formData, setFormData, isVi
       <h3 className="text-lg font-semibold">Vesting Schedules (Optional)</h3>
       {vestingSchedules.map((vest, index) => (
         <div key={index} className="p-4 border rounded-md space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SGCInput 
               label="Allocation"
               type="select"
@@ -76,7 +76,7 @@ const Step3Vesting: React.FC<Step3VestingProps> = ({ formData, setFormData, isVi
           )}
 
           {vest.vestingType === 'LINEAR' && (
-             <div className="grid grid-cols-2 gap-4">
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <SGCInput label="Cliff (Months)" type="number" value={vest.cliffMonths || ''} onChange={e => handleVestingChange(index, 'cliffMonths', parseInt(e.target.value))} disabled={isViewOnly} />
                 <SGCInput
                     label="Release Frequency"
@@ -89,10 +89,10 @@ const Step3Vesting: React.FC<Step3VestingProps> = ({ formData, setFormData, isVi
              </div>
           )}
 
-          {!isViewOnly && <SGCButton onClick={() => removeVestingSchedule(index)} variant="danger" className="text-xs py-1 px-2">Remove Schedule</SGCButton>}
+          {!isViewOnly && <SGCButton onClick={() => removeVestingSchedule(index)} variant="danger" className="text-xs py-1 px-2 w-full">Remove Schedule</SGCButton>}
         </div>
       ))}
-      {!isViewOnly && <SGCButton onClick={addVestingSchedule} className="text-sm py-1 px-2">Add Vesting Schedule</SGCButton>}
+      {!isViewOnly && <SGCButton onClick={addVestingSchedule} className="text-sm py-1 px-2 w-full">Add Vesting Schedule</SGCButton>}
     </div>
   );
 };

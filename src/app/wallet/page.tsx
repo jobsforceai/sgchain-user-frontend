@@ -133,7 +133,7 @@ const WalletPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">Wallet</h1>
+      <h1 className="text-2xl md:text-3xl font-bold mb-4">Wallet</h1>
       {error && <p className="text-red-500 bg-red-100 p-3 rounded mb-4">{error}</p>}
       {loading && !wallet ? (
         <p>Loading wallet...</p>

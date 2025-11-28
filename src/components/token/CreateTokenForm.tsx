@@ -14,10 +14,10 @@ import { Check } from 'lucide-react';
 const STEPS = ['Details', 'Supply & Allocation', 'Vesting Schedule', 'Review & Create'];
 
 const Stepper: React.FC<{ currentStep: number }> = ({ currentStep }) => (
-  <div className="flex items-center justify-center mb-8">
+  <div className="flex items-center justify-center mb-8 flex-wrap">
     {STEPS.map((step, index) => (
       <React.Fragment key={step}>
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center w-1/4 min-w-[80px]">
           <div
             className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
               index < currentStep ? 'bg-green-500 text-white' : index === currentStep ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'
@@ -27,7 +27,7 @@ const Stepper: React.FC<{ currentStep: number }> = ({ currentStep }) => (
           </div>
           <p className={`mt-2 text-xs text-center ${index <= currentStep ? 'font-semibold text-gray-700' : 'text-gray-500'}`}>{step}</p>
         </div>
-        {index < STEPS.length - 1 && <div className={`flex-1 h-1 mx-2 ${index < currentStep ? 'bg-green-500' : 'bg-gray-200'}`} />}
+        {index < STEPS.length - 1 && <div className={`flex-1 h-1 mx-2 hidden sm:block ${index < currentStep ? 'bg-green-500' : 'bg-gray-200'}`} />}
       </React.Fragment>
     ))}
   </div>
@@ -93,18 +93,18 @@ const CreateTokenForm: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
       
       {error && <p className="text-red-500 text-sm mt-4 text-center">{error}</p>}
 
-      <div className="mt-8 pt-6 border-t border-gray-200 flex justify-between items-center">
-        <div>
+      <div className="mt-8 pt-6 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center sm:items-end">
+        <div className="w-full sm:w-auto mb-4 sm:mb-0">
           {currentStep > 0 && (
-            <SGCButton onClick={handleBack} disabled={loading} variant="outline">Back</SGCButton>
+            <SGCButton onClick={handleBack} disabled={loading} variant="outline" className="w-full">Back</SGCButton>
           )}
         </div>
-        <div className="flex items-center gap-4">
-          <SGCButton onClick={onCancel} disabled={loading} className="bg-gray-200 text-gray-700 hover:bg-gray-300">Cancel</SGCButton>
+        <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+          <SGCButton onClick={onCancel} disabled={loading} className="bg-gray-200 text-gray-700 hover:bg-gray-300 w-full">Cancel</SGCButton>
           {currentStep < STEPS.length - 1 ? (
-            <SGCButton onClick={handleNext}>Next</SGCButton>
+            <SGCButton onClick={handleNext} className="w-full">Next</SGCButton>
           ) : (
-            <SGCButton onClick={handleSubmit} disabled={loading}>
+            <SGCButton onClick={handleSubmit} disabled={loading} className="w-full">
               {loading ? 'Saving Draft...' : 'Save Draft & Continue'}
             </SGCButton>
           )}

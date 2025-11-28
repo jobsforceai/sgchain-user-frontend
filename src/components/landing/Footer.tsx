@@ -8,14 +8,14 @@ const Footer: React.FC = () => {
         <footer className="relative text-slate-200 h-[75vh] overflow-hidden">
             
             {/* glassy top strip */}
-            <div className="px-24 bg-linear-to-b from-black/50 to-black/95 backdrop-blur-[2px] mx-auto w-full h-full">
-                <div className="relative h-full flex items-center">
-                    <div className="grid grid-cols-1 md:grid-cols-9 gap-12 items-stretch w-full">
+            <div className="px-6 md:px-24 bg-linear-to-b from-black/50 to-black/95 backdrop-blur-[2px] mx-auto w-full h-full">
+                <div className="relative md:h-full flex flex-col md:flex-row items-start md:items-center py-8 md:py-0">
+                    <div className="grid grid-cols-1 md:grid-cols-9 gap-6 md:gap-12 items-stretch w-full">
                         {/* Column 1 (big) spans 3 cols on md */}
                         <div className="md:col-span-3">
                             <div className="flex flex-col gap-6">
                                 <div>
-                                    <div className="text-2xl font-bold">Sgchain</div>
+                                    <div className="text-2xl md:text-3xl font-bold">Sgchain</div>
                                     <div className="mt-3 flex items-center gap-3">
                                         {/* social icons - simple SVG placeholders */}
                                         <a href="#" aria-label="twitter" className="text-slate-200 hover:text-white">
@@ -56,11 +56,11 @@ const Footer: React.FC = () => {
                         <div className="md:col-span-1">
                             <h3 className="font-semibold mb-3">About</h3>
                             <ul className="flex flex-col gap-2 text-sm text-slate-200">
-                                <li className="whitespace-nowrap"><a href="#wallet" className="hover:text-white">Wallet</a></li>
-                                <li className="whitespace-nowrap"><a href="#api" className="hover:text-white">API</a></li>
-                                <li className="whitespace-nowrap"><a href="#coin-creation" className="hover:text-white">Coin Creation</a></li>
-                                <li className="whitespace-nowrap"><a href="#liquidity" className="hover:text-white">Liquidity</a></li>
-                                <li className="whitespace-nowrap"><a href="#register-company" className="hover:text-white">Register Company</a></li>
+                                <li><a href="#wallet" className="hover:text-white">Wallet</a></li>
+                                <li><a href="#api" className="hover:text-white">API</a></li>
+                                <li><a href="#coin-creation" className="hover:text-white">Coin Creation</a></li>
+                                <li><a href="#liquidity" className="hover:text-white">Liquidity</a></li>
+                                <li><a href="#register-company" className="hover:text-white">Register Company</a></li>
                             </ul>
                         </div>
 
@@ -95,7 +95,7 @@ const Footer: React.FC = () => {
 
                         {/* Column 4 Coming Soon */}
                         <div className="md:col-span-1">
-                            <h3 className="font-semibold mb-3 text-nowrap">Coming Soon</h3>
+                            <h3 className="font-semibold mb-3">Coming Soon</h3>
                             <ul className="flex flex-col gap-2 text-sm text-slate-200">
                                 <li><a href="#" className="hover:text-white">Mobile App</a></li>
                                 <li><a href="#" className="hover:text-white">Staking</a></li>

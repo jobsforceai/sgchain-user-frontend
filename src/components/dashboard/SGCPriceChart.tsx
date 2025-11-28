@@ -76,7 +76,28 @@ const SGCPriceChart: React.FC<Props> = ({ height = 300 }) => {
     if (error) return <div style={{ height }} className="flex items-center justify-center"><p className="text-red-500">{error}</p></div>;
   }
 
-  return <div ref={chartContainerRef} style={{ width: '100%', height }} />;
+  const livePrice = candles.length > 0 ? candles[candles.length - 1].close : null;
+
+  return (
+    <div style={{ position: 'relative', width: '100%', height }}>
+      {livePrice !== null && (
+        <div style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          backgroundColor: 'rgba(41, 98, 255, 0.8)',
+          color: 'white',
+          padding: '4px 8px',
+          borderRadius: '4px',
+          fontSize: '12px',
+          zIndex: 10
+        }}>
+          Live Price: ${livePrice.toFixed(2)}
+        </div>
+      )}
+      <div ref={chartContainerRef} style={{ width: '100%', height }} />
+    </div>
+  );
 };
 
 export default SGCPriceChart;

@@ -23,7 +23,7 @@ const CoinCreation: React.FC = () => {
                         </div>
 
                         <div className=" mt-2 flex justify-center">
-                            <SGCBlackButton link="/create" name="Create Token" />
+                            <SGCBlackButton link="/login" name="Create Token" />
                         </div>
                     </div>
 
@@ -40,7 +40,7 @@ const CoinCreation: React.FC = () => {
                         </div>
 
                         <div className="mt-2 flex justify-center">
-                            <SGCBlackButton link="/dashboard" name="Manage" />
+                            <SGCBlackButton link="/login" name="Manage" />
                         </div>
                     </div>
                 </div>

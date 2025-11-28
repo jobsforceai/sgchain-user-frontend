@@ -55,7 +55,7 @@ export default function HeroSection() {
 
           <div className="flex items-center justify-center w-full sm:w-auto">
             <SGCBlackButton
-              link="/get-started"
+              link="/login"
               name={
                 <>
                   <span>Get Started</span>

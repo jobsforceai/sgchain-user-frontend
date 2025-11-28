@@ -249,7 +249,7 @@ const KYCPage: React.FC = () => {
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h1 className="text-3xl font-bold">KYC Verification</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">KYC Verification</h1>
           {selectedRegion && <p className="text-gray-500">Region: {selectedRegion}</p>}
         </div>
         {selectedRegion && <StatusBadge status={currentStatusValue} />}
