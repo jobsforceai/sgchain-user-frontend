@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react';
-import { createChart, IChartApi, ISeriesApi, CandlestickData } from 'lightweight-charts';
+import { createChart, IChartApi, ISeriesApi, AreaData, Time } from 'lightweight-charts';
 import useMarketStore from '@/stores/market.store';
 
 type Props = {
@@ -11,7 +11,7 @@ type Props = {
 const SGCPriceChart: React.FC<Props> = ({ height = 300 }) => {
   const chartContainerRef = React.useRef<HTMLDivElement | null>(null);
   const chartRef = React.useRef<IChartApi | null>(null);
-  const seriesRef = React.useRef<ISeriesApi<'Candlestick'> | null>(null);
+  const seriesRef = React.useRef<ISeriesApi<'Area'> | null>(null);
   const { candles, loading, error } = useMarketStore();
 
   React.useEffect(() => {
@@ -26,19 +26,22 @@ const SGCPriceChart: React.FC<Props> = ({ height = 300 }) => {
         grid: { vertLines: { visible: false }, horzLines: { color: '#e2e8f0' } },
         rightPriceScale: { visible: true },
         timeScale: { timeVisible: true, secondsVisible: false, borderColor: '#e2e8f0' },
+        watermark: { visible: false },
       });
       chartRef.current = chart;
 
-      const series = chart.addCandlestickSeries({
-        upColor: '#16a34a',
-        downColor: '#ef4444',
-        borderVisible: false,
-        wickUpColor: '#16a34a',
-        wickDownColor: '#ef4444',
+      const series = chart.addAreaSeries({
+        lineColor: '#2962FF',
+        topColor: 'rgba(41, 98, 255, 0.28)',
+        bottomColor: 'rgba(41, 98, 255, 0.05)',
       });
       seriesRef.current = series;
 
-      series.setData(candles);
+      const areaData: AreaData[] = candles.map(candle => ({
+        time: candle.time as Time,
+        value: candle.close,
+      }));
+      series.setData(areaData);
 
       const handleResize = () => {
         if (chartRef.current && chartContainerRef.current) {
@@ -60,7 +63,10 @@ const SGCPriceChart: React.FC<Props> = ({ height = 300 }) => {
     else if (chartRef.current && seriesRef.current && candles.length > 0) {
       const lastCandle = candles[candles.length - 1];
       console.log('[SGCPriceChart] Updating live data:', lastCandle);
-      seriesRef.current.update(lastCandle);
+      seriesRef.current.update({
+        time: lastCandle.time as Time,
+        value: lastCandle.close,
+      });
     }
   }, [candles, height]);
   
@@ -70,7 +76,28 @@ const SGCPriceChart: React.FC<Props> = ({ height = 300 }) => {
     if (error) return <div style={{ height }} className="flex items-center justify-center"><p className="text-red-500">{error}</p></div>;
   }
 
-  return <div ref={chartContainerRef} style={{ width: '100%', height }} />;
+  const livePrice = candles.length > 0 ? candles[candles.length - 1].close : null;
+
+  return (
+    <div style={{ position: 'relative', width: '100%', height }}>
+      {livePrice !== null && (
+        <div style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          backgroundColor: 'rgba(41, 98, 255, 0.8)',
+          color: 'white',
+          padding: '4px 8px',
+          borderRadius: '4px',
+          fontSize: '12px',
+          zIndex: 10
+        }}>
+          Live Price: ${livePrice.toFixed(2)}
+        </div>
+      )}
+      <div ref={chartContainerRef} style={{ width: '100%', height }} />
+    </div>
+  );
 };
 
 export default SGCPriceChart;

@@ -15,7 +15,7 @@ const Liquidity = () => {
                     <div className="flex flex-col items-start md:items-center gap-4">
                         <h2 className="text-3xl text-center md:text-5xl font-bold">Become a <span className='text-[#0121cb] font-cream'>Liquidity Provider</span> today</h2>
                         <p className="mt-3 text-slate-700 text-center max-w-lg">Earn fees and incentives by supplying liquidity to trading pools on SGChain. Our protocol offers low slippage and automated market-making tailored for institutional and retail participants.</p>
-                        <SGCBlackButton name="Provide Liquidity" link="/provide" >
+                        <SGCBlackButton name="Provide Liquidity" link="/login" >
                         </SGCBlackButton>
                     </div>
                 </div>

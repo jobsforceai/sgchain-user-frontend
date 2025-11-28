@@ -42,17 +42,17 @@ const Step1Details: React.FC<Step1DetailsProps> = ({ formData, setFormData, isVi
     <div className="space-y-6">
       <div>
         <label className="block text-gray-700 text-sm font-bold mb-2">Token Tier</label>
-        <div className="flex gap-4">
+        <div className="flex flex-col md:flex-row gap-4">
           <div
             onClick={!isViewOnly ? () => handleTierChange('FUN') : undefined}
-            className={`border p-4 rounded-lg w-1/2 ${formData.tier === 'FUN' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'} ${isViewOnly ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+            className={`border p-4 rounded-lg w-full md:w-1/2 ${formData.tier === 'FUN' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'} ${isViewOnly ? 'cursor-not-allowed' : 'cursor-pointer'}`}
           >
             <h3 className="font-bold">FunCoin</h3>
             <p className="text-sm text-gray-600">Fee: 1 SGC</p>
           </div>
           <div
             onClick={!isViewOnly ? () => handleTierChange('SUPER') : undefined}
-            className={`border p-4 rounded-lg w-1/2 ${formData.tier === 'SUPER' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'} ${isViewOnly ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+            className={`border p-4 rounded-lg w-full md:w-1/2 ${formData.tier === 'SUPER' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'} ${isViewOnly ? 'cursor-not-allowed' : 'cursor-pointer'}`}
           >
             <h3 className="font-bold">SuperCoin</h3>
             <p className="text-sm text-gray-600">Fee: 100 SGC</p>

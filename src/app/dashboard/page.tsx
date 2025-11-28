@@ -49,20 +49,11 @@ const DashboardPage: React.FC = () => {
     { label: 'History', content: <HistoryTab /> },
   ];
 
-  const chartTitle = (
-    <div className="flex items-center gap-4">
-      <span>SGC Price (USD)</span>
-      {livePrice && (
-        <span className="text-lg font-mono bg-green-100 text-green-800 px-2 py-1 rounded">
-          ${livePrice.toFixed(2)}
-        </span>
-      )}
-    </div>
-  );
+  const chartTitle = `SGC Price (USD) ${livePrice ? `$${livePrice.toFixed(2)}` : ''}`;
 
   return (
     <div className="w-full px-4">
-      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+      <h1 className="text-2xl md:text-3xl font-bold mb-6">Dashboard</h1>
 
       <div className="mb-8">
         <AnimateGSAP>
