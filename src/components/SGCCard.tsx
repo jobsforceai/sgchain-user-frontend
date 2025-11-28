@@ -9,7 +9,7 @@ interface SGCCardProps {
 const SGCCard: React.FC<SGCCardProps> = ({ children, title, className = "" }) => {
   return (
     <div className={`bg-white border border-gray-200 rounded-lg p-6 shadow-sm ${className}`}>
-      {title && <h2 className="text-xl font-bold mb-4 text-gray-800">{title}</h2>}
+      {title && <h2 className="relative text-xl font-bold mb-4 text-gray-800">{title}</h2>}
       <div className="text-gray-700">
         {children}
       </div>

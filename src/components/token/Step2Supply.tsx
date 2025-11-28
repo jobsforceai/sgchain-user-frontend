@@ -66,16 +66,18 @@ const Step2Supply: React.FC<Step2SupplyProps> = ({ formData, setFormData, isView
         {formData.allocations.map((alloc, index) => {
           const isLiquidityOnSuper = formData.tier === 'SUPER' && alloc.category === 'LIQUIDITY';
           return (
-            <div key={index} className="flex items-center gap-4 mb-2 p-2 border rounded-md">
-              <SGCInput
-                label="Category"
-                type="select"
-                value={alloc.category}
-                onChange={(e) => handleAllocationChange(index, 'category', e.target.value)}
-                disabled={isViewOnly || isLiquidityOnSuper}
-                options={ALLOCATION_CATEGORIES.map(cat => ({ value: cat, label: cat }))}
-              />
-              <div className="w-24">
+            <div key={index} className="flex flex-col md:flex-row items-center gap-4 mb-2 p-2 border rounded-md">
+              <div className="w-full">
+                <SGCInput
+                  label="Category"
+                  type="select"
+                  value={alloc.category}
+                  onChange={(e) => handleAllocationChange(index, 'category', e.target.value)}
+                  disabled={isViewOnly || isLiquidityOnSuper}
+                  options={ALLOCATION_CATEGORIES.map(cat => ({ value: cat, label: cat }))}
+                />
+              </div>
+              <div className="w-full md:w-24">
                 <SGCInput 
                   label="Percentage"
                   type="number"
@@ -85,7 +87,7 @@ const Step2Supply: React.FC<Step2SupplyProps> = ({ formData, setFormData, isView
                   min={isLiquidityOnSuper ? 5 : 0}
                 />
               </div>
-              <div className="flex-grow">
+              <div className="flex-grow w-full">
                 <SGCInput 
                   label="Target Wallet (Optional)"
                   type="text"
@@ -94,7 +96,7 @@ const Step2Supply: React.FC<Step2SupplyProps> = ({ formData, setFormData, isView
                   disabled={isViewOnly}
                 />
               </div>
-              {!isViewOnly && !isLiquidityOnSuper && <SGCButton onClick={() => removeAllocation(index)} variant="danger" className="py-1 px-2 text-xs">Remove</SGCButton>}
+              {!isViewOnly && !isLiquidityOnSuper && <SGCButton onClick={() => removeAllocation(index)} variant="danger" className="py-1 px-2 text-xs w-full md:w-auto">Remove</SGCButton>}
             </div>
           );
         })}

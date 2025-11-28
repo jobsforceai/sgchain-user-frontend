@@ -23,6 +23,7 @@ export interface EmojiData {
 export const fetchEmojis = async (): Promise<EmojiData> => {
   try {
     const response = await api.get<EmojiData>('/config/emojis');
+    console.log('Fetched emojis from backend:', response.data);
     return response.data;
   } catch (error) {
     console.error('Failed to fetch emojis:', error);

@@ -2,15 +2,15 @@
 import useAuthStore from '@/stores/auth.store';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import React, { useState } from 'react';
+import { FiHome, FiPlusSquare, FiCreditCard, FiCheckSquare, FiLogOut, FiDownload, FiUser } from 'react-icons/fi';
 import SGCButton from './SGCButton';
 import Modal from './Modal';
 
 const Sidebar: React.FC = () => {
   const pathname = usePathname();
   const { logout } = useAuthStore();
-  const router = useRouter();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const handleLogout = () => {
@@ -18,18 +18,19 @@ const Sidebar: React.FC = () => {
   };
 
   const navLinks = [
-    { href: '/dashboard', label: 'Dashboard' },
-    { href: '/token', label: 'Create Token' },
-    { href: '/swap', label: 'Swap' },
-    { href: '/wallet', label: 'Wallet' },
-    { href: '/kyc', label: 'KYC' },
-    { href: '/withdraw', label: 'Withdraw' },
-    // { href: '/profile', label: 'Profile' },
+    { href: '/dashboard', label: 'Dashboard', icon: <FiHome /> },
+    { href: '/token', label: 'Create Token', icon: <FiPlusSquare /> },
+    { href: '/wallet', label: 'Wallet', icon: <FiCreditCard /> },
+    { href: '/kyc', label: 'KYC', icon: <FiCheckSquare /> },
+    { href: '/withdraw', label: 'Withdraw', icon: <FiDownload /> },
+    // { href: '/profile', label: 'Profile', icon: <FiUser /> },
   ];
 
   return (
     <>
-      <aside className="bg-gray-50 border-r border-gray-200 w-64 h-screen flex flex-col p-4 fixed top-0 left-0 z-50">
+      <aside 
+        className="bg-gray-50 border-r border-gray-200 h-screen flex flex-col p-4 fixed top-0 left-0 z-50 w-64"
+      >
         <div className="flex items-center mb-8">
           <Link href="/">
             <Image src="/sg-logo.png" alt="SGC Logo" width={120} height={40} />
@@ -47,17 +48,14 @@ const Sidebar: React.FC = () => {
                       : 'text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  {link.label}
+                  <span className="text-lg">{link.icon}</span>
+                  <span className="ml-3">{link.label}</span>
                 </Link>
               </li>
             ))}
           </ul>
         </nav>
-        <div>
-          <SGCButton onClick={() => setIsLogoutModalOpen(true)} className="w-full" variant="danger">
-            Logout
-          </SGCButton>
-        </div>
+        
       </aside>
 
       <Modal

@@ -142,7 +142,7 @@ const WithdrawPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Request Withdrawal</h1>
+      <h1 className="text-2xl md:text-3xl font-bold mb-6">Request Withdrawal</h1>
       
       <SGCCard className="mb-6">
         <div className="flex justify-between items-center">

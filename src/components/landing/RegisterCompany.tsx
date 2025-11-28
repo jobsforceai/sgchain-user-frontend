@@ -31,7 +31,7 @@ const RegisterCompany: React.FC = () => {
                         </ul> */}
 
                         <div className="mt-6 flex justify-center w-full">
-                            <SGCBlackButton link="/register" name={"Register Now"} className="px-6 py-3" />
+                            <SGCBlackButton link="/login" name={"Register Now"} className="px-6 py-3" />
                         </div>
                     </div>
 
