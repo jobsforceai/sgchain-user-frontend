@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { getMarketCandles, SgcCandle } from "@/services/market.service";
+import { getMarketCandles, getSgcPrice, SgcCandle } from "@/services/market.service";
 import socketService from "@/services/socket.service";
 import { CandlestickData } from "lightweight-charts";
 
@@ -14,6 +14,7 @@ interface MarketState {
   livePrice: number | null;
   loading: boolean;
   error: string | null;
+  fetchInitialPrice: () => Promise<void>;
   fetchHistoricalData: (symbol: string) => Promise<void>;
   subscribeToLiveUpdates: (symbol: string) => void;
   unsubscribeFromLiveUpdates: (symbol: string) => void;
@@ -24,6 +25,15 @@ const useMarketStore = create<MarketState>((set, get) => ({
   livePrice: null,
   loading: false,
   error: null,
+  fetchInitialPrice: async () => {
+    try {
+      const data = await getSgcPrice();
+      set({ livePrice: data.priceUsd });
+    } catch (err) {
+      console.error("[MarketStore] Failed to fetch initial SGC price:", err);
+      // Don't set an error here, as the WebSocket might still work
+    }
+  },
   fetchHistoricalData: async (symbol: string) => {
     set({ loading: true, error: null });
     try {
@@ -32,7 +42,6 @@ const useMarketStore = create<MarketState>((set, get) => ({
       const resolution = '1';
       const rawCandles = await getMarketCandles(symbol, resolution, from, to);
       
-      // Clean the data to match the expected format for lightweight-charts
       const formattedCandles = rawCandles.map(candle => ({
         time: candle.time,
         open: candle.open,
@@ -41,7 +50,6 @@ const useMarketStore = create<MarketState>((set, get) => ({
         close: candle.close,
       }));
 
-      console.log('[MarketStore] Setting formatted historical candles in store:', formattedCandles);
       set({ candles: formattedCandles as CandlestickData[], loading: false });
     } catch (err) {
       console.error("[MarketStore] Failed to fetch market candles:", err);
@@ -49,12 +57,10 @@ const useMarketStore = create<MarketState>((set, get) => ({
     }
   },
   subscribeToLiveUpdates: (symbol: string) => {
-    console.log(`[MarketStore] Subscribing to ${symbol} live updates.`);
     socketService.connect();
     socketService.emit("market:subscribe", symbol);
 
     socketService.on("market:tick", (data: MarketTick) => {
-      console.log('[MarketStore] Received market:tick:', data);
       if (data.symbol === symbol) {
         set({ livePrice: data.last });
         
@@ -68,14 +74,12 @@ const useMarketStore = create<MarketState>((set, get) => ({
             low: Math.min(lastCandle.low, data.last),
           };
           
-          console.log('[MarketStore] Updating last candle:', newCandle);
           set({ candles: [...candles.slice(0, -1), newCandle] });
         }
       }
     });
   },
   unsubscribeFromLiveUpdates: (symbol: string) => {
-    console.log(`[MarketStore] Unsubscribing from ${symbol} live updates.`);
     socketService.emit("market:unsubscribe", symbol);
   }
 }));

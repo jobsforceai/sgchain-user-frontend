@@ -26,3 +26,13 @@ export const getMarketCandles = (
     return r.data;
   });
 };
+
+export interface SgcPrice {
+  symbol: string;
+  priceUsd: number;
+  lastUpdatedAt: string;
+}
+
+export const getSgcPrice = (): Promise<SgcPrice> => {
+  return marketApi.get("/market/sgc-price").then(r => r.data);
+};
