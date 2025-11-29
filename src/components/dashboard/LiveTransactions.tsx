@@ -7,7 +7,16 @@ import Tabs from '../Tabs';
 import { CubeIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
 
 const LiveTransactions: React.FC = () => {
-  const { pendingTransactions, recentBlocks, isConnected } = useTransactionStore();
+  const { pendingTransactions, recentBlocks, isConnected, connect, disconnect } = useTransactionStore();
+
+  useEffect(() => {
+    console.log('[LiveTransactions] Mounting and connecting WebSocket...');
+    connect();
+    return () => {
+      console.log('[LiveTransactions] Unmounting and disconnecting WebSocket...');
+      disconnect();
+    };
+  }, []);
 
   const formatTimestamp = (hexTimestamp: string) => {
     if (!hexTimestamp) return 'N/A';

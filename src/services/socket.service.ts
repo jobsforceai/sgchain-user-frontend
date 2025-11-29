@@ -14,6 +14,10 @@ class SocketService {
         console.log("[SocketService] Connected:", this.socket?.id);
       });
 
+      this.socket.onAny((event, ...args) => {
+        console.log(`[SocketService] Event received: ${event}`, args);
+      });
+
       this.socket.on("disconnect", (reason) => {
         console.log("[SocketService] Disconnected:", reason);
         // Clean up the socket instance on disconnect
