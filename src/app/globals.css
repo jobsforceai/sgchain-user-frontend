@@ -30,3 +30,6 @@
   backdrop-filter: blur(6px);
 }
 
+a[href*="tradingview"] {
+  display: none !important;
+}
