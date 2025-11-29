@@ -49,7 +49,7 @@ export interface CreateTokenPayload {
   vestingSchedules?: VestingSchedule[];
 }
 
-export interface TokenLaunch extends CreateTokenPayload {
+export interface Token extends CreateTokenPayload {
     _id: string;
     userId: string;
     status: TokenStatus;
@@ -65,17 +65,17 @@ export interface TokenLaunch extends CreateTokenPayload {
 }
 
 // API Functions
-export const listMyTokens = (): Promise<{ items: TokenLaunch[] }> =>
+export const listMyTokens = (): Promise<{ items: Token[] }> =>
   api.get("/tokens/my-tokens").then(r => r.data);
 
-export const createToken = (payload: CreateTokenPayload): Promise<TokenLaunch> =>
+export const createTokenDraft = (payload: CreateTokenPayload): Promise<Token> =>
   api.post("/tokens", payload).then(r => r.data);
 
-export const updateToken = (id: string, payload: Partial<CreateTokenPayload>): Promise<TokenLaunch> =>
-  api.put(`/tokens/${id}`, payload).then(r => r.data);
+export const updateTokenDraft = (id: string, payload: Partial<CreateTokenPayload>): Promise<Token> =>
+  api.put(`/token/drafts/${id}`, payload).then(r => r.data);
 
-export const getTokenDetails = (id: string): Promise<TokenLaunch> =>
+export const deployToken = (id: string): Promise<{ txHash: string }> =>
+  api.post(`/tokens/${id}/submit`).then(r => r.data);
+
+export const getTokenDetails = (id: string): Promise<Token> =>
   api.get(`/tokens/${id}`).then(r => r.data);
-
-export const deployToken = (id: string): Promise<TokenLaunch> =>
-  api.post(`/tokens/${id}/submit`, {}).then(r => r.data);

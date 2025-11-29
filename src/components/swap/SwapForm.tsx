@@ -6,7 +6,7 @@ import useWalletStore from '@/stores/wallet.store';
 import useTokenStore from '@/stores/token.store';
 import SGCInput from '../SGCInput';
 import SGCButton from '../SGCButton';
-import { TokenLaunch } from '@/services/token.service';
+import { Token } from '@/services/token.service';
 import { Repeat, ChevronDown } from 'lucide-react';
 
 // New, reusable component for the token input fields

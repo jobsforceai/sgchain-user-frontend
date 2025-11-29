@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import useWalletStore from '@/stores/wallet.store';
+import useUiStore from '@/stores/ui.store';
 import SGCBalanceCard from '@/components/SGCBalanceCard';
 import SGCCard from '@/components/SGCCard';
 import SGCButton from '@/components/SGCButton';
 import Tabs from '@/components/Tabs';
 import BuySGCForm from '@/components/dashboard/BuySGCForm';
 import SellSGCForm from '@/components/dashboard/SellSGCForm';
+import InstantBuySGCForm from '@/components/dashboard/InstantBuySGCForm';
 import ExternalTransferForm from '@/components/dashboard/ExternalTransferForm';
 import RedeemTransferForm from '@/components/dashboard/RedeemTransferForm';
 import PinLockScreen from '@/components/wallet/PinLockScreen';
@@ -26,6 +28,7 @@ const WalletPage: React.FC = () => {
     clearWalletDetails,
     lockWallet,
   } = useWalletStore();
+  const { showToast } = useUiStore();
 
   const [showPrivateKey, setShowPrivateKey] = useState(false);
   const [needsDetailsVerification, setNeedsDetailsVerification] = useState(false);
@@ -53,19 +56,30 @@ const WalletPage: React.FC = () => {
   };
 
   const tabs = [
-    { label: 'Buy SGC', content: <BuySGCForm /> },
+    { label: 'Buy SGC (Bank)', content: <BuySGCForm /> },
     { label: 'Sell SGC', content: <SellSGCForm /> },
-    { label: 'SGTrading Transfer', content: <ExternalTransferForm /> },
-    { label: 'Redeem Transfer', content: <RedeemTransferForm /> },
+    { label: 'Transfer Out to Exchange', content: <ExternalTransferForm /> },
+    { label: 'Redeem From Exchange', content: <RedeemTransferForm /> },
   ];
+
+  // Conditionally add the Instant Buy tab if the user has a USD balance
+  if (wallet && wallet.fiatBalanceUsd > 0) {
+    tabs.splice(1, 0, { label: 'Instant Buy (USD)', content: <InstantBuySGCForm /> });
+  }
 
   const WalletDetailsView = () => {
     const handleCopyAddress = () => {
-      if (walletDetails?.onchainAddress) navigator.clipboard.writeText(walletDetails.onchainAddress);
+      if (walletDetails?.onchainAddress) {
+        navigator.clipboard.writeText(walletDetails.onchainAddress);
+        showToast('Address copied to clipboard!', 'success');
+      }
     };
 
     const handleCopyPrivateKey = () => {
-      if (walletDetails?.privateKey) navigator.clipboard.writeText(walletDetails.privateKey);
+      if (walletDetails?.privateKey) {
+        navigator.clipboard.writeText(walletDetails.privateKey);
+        showToast('Private key copied to clipboard!', 'success');
+      }
     };
 
     return (

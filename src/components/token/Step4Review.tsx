@@ -13,14 +13,14 @@ interface Step4ReviewProps {
 }
 
 const Step4Review: React.FC<Step4ReviewProps> = ({ formData, id, isViewOnly = false }) => {
-  const { deploy, loading: isDeploying, error: deployError } = useTokenStore();
+  const { deployToken, loading: isDeploying, error: deployError } = useTokenStore();
   const { wallet } = useWalletStore();
 
   const deploymentCost = formData.tier === 'SUPER' ? 100 : 1;
   const hasEnoughFunds = wallet ? wallet.sgcBalance >= deploymentCost : false;
 
   const handleDeploy = () => {
-    deploy(id);
+    deployToken(id);
   };
 
   console.log('Wallet object in Step4Review:', wallet);

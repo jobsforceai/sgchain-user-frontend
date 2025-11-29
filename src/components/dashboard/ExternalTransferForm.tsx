@@ -73,7 +73,7 @@ const ExternalTransferForm: React.FC = () => {
   return (
     <div className="max-w-md mx-auto">
       <p className="mb-4 text-sm text-gray-600">
-        Transfer SGC to your SGTrading account. A redeemable code will be generated that you can use on the SGTrading platform to deposit funds.
+        Generate a code to transfer SGC from your wallet to an SGTrading platform account.
       </p>
       <form onSubmit={handleSubmit} className="space-y-4">
         <SGCInput

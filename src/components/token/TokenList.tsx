@@ -5,10 +5,42 @@ import { useRouter } from 'next/navigation';
 import useTokenStore from '@/stores/token.store';
 import SGCButton from '@/components/SGCButton';
 import SGCCard from '@/components/SGCCard';
+import { Token } from '@/services/token.service';
+import { ChevronRight } from 'lucide-react';
 
 interface TokenListProps {
   onStartCreate: () => void;
 }
+
+const TokenStatusBadge: React.FC<{ status: Token['status'] }> = ({ status }) => (
+  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+    status === 'DRAFT' ? 'bg-yellow-200 text-yellow-800' :
+    status === 'DEPLOYED' ? 'bg-green-200 text-green-800' :
+    status === 'FAILED' ? 'bg-red-200 text-red-800' :
+    'bg-blue-200 text-blue-800'
+  }`}>{status.replace('_', ' ')}</span>
+);
+
+const TokenListItem: React.FC<{ token: Token; onActionClick: (id: string) => void }> = ({ token, onActionClick }) => (
+  <div 
+    onClick={() => onActionClick(token._id)}
+    className="bg-white/80 backdrop-blur-sm rounded-lg p-4 transition-all hover:shadow-md hover:bg-white cursor-pointer flex justify-between items-center"
+  >
+    <div className="flex items-center gap-4">
+      <div className="p-3 bg-gray-100 rounded-full">
+        <span className="font-bold text-gray-600">{token.metadata.symbol}</span>
+      </div>
+      <div>
+        <p className="font-bold text-gray-800">{token.metadata.name}</p>
+        <p className="text-sm text-gray-500">{token.tier}</p>
+      </div>
+    </div>
+    <div className="flex items-center gap-4">
+      <TokenStatusBadge status={token.status} />
+      <ChevronRight className="text-gray-400" />
+    </div>
+  </div>
+);
 
 const TokenList: React.FC<TokenListProps> = ({ onStartCreate }) => {
   const { tokens, loading, error, fetchTokens } = useTokenStore();
@@ -19,7 +51,6 @@ const TokenList: React.FC<TokenListProps> = ({ onStartCreate }) => {
   }, [fetchTokens]);
 
   const handleActionClick = (tokenId: string) => {
-    console.log('Navigating to token with ID:', tokenId);
     router.push(`/token/${tokenId}`);
   };
 
@@ -30,49 +61,20 @@ const TokenList: React.FC<TokenListProps> = ({ onStartCreate }) => {
         <SGCButton onClick={onStartCreate} className="w-full md:w-auto">Create New Token</SGCButton>
       </div>
 
-      {loading && <p>Loading tokens...</p>}
-      {error && <p className="text-red-500">{error}</p>}
+      {loading && <p className="text-center py-4">Loading tokens...</p>}
+      {error && <p className="text-red-500 text-center py-4">{error}</p>}
       
       {!loading && !error && (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white text-gray-800">
-            <thead>
-              <tr className="bg-gray-50">
-                <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wider">Name</th>
-                <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wider">Symbol</th>
-                <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wider">Tier</th>
-                <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wider">Status</th>
-                <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tokens.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="text-center py-4 text-sm">You haven't created any tokens yet.</td>
-                </tr>
-              ) : (
-                tokens.map(token => (
-                  <tr key={token._id} className="border-b border-gray-200">
-                    <td className="py-3 px-4 text-sm">{token.metadata.name}</td>
-                    <td className="py-3 px-4 text-sm">{token.metadata.symbol}</td>
-                    <td className="py-3 px-4 text-sm">{token.tier}</td>
-                    <td className="py-3 px-4">
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        token.status === 'DRAFT' ? 'bg-yellow-200 text-yellow-800' :
-                        token.status === 'DEPLOYED' ? 'bg-green-200 text-green-800' :
-                        'bg-gray-200 text-gray-800'
-                      }`}>{token.status}</span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <SGCButton onClick={() => handleActionClick(token._id)} className="text-sm py-1 px-2">
-                        {token.status === 'DRAFT' ? 'Edit' : 'View'}
-                      </SGCButton>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+        <div className="space-y-3">
+          {tokens.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p>You haven't created any tokens yet.</p>
+            </div>
+          ) : (
+            tokens.map(token => (
+              <TokenListItem key={token._id} token={token} onActionClick={handleActionClick} />
+            ))
+          )}
         </div>
       )}
     </SGCCard>
