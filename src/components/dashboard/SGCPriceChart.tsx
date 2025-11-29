@@ -22,7 +22,11 @@ const SGCPriceChart: React.FC<Props> = ({ height = 300 }) => {
       const chart = createChart(chartContainerRef.current, {
         width: chartContainerRef.current.clientWidth,
         height,
-        layout: { background: { color: 'transparent' }, textColor: '#94a3b8' },
+        layout: { 
+          background: { color: 'transparent' }, 
+          textColor: '#94a3b8',
+          attributionLogo: false,
+        },
         grid: { vertLines: { visible: false }, horzLines: { color: '#e2e8f0' } },
         rightPriceScale: { visible: true },
         timeScale: { timeVisible: true, secondsVisible: false, borderColor: '#e2e8f0' },

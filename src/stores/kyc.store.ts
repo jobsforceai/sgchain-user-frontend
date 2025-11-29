@@ -1,13 +1,26 @@
 import { create } from "zustand";
-import { getKycStatus, uploadKycDocument, submitKycForReview, KycStatus, UploadDocumentPayload, KycRegion } from "@/services/kyc.service";
+import { 
+  getKycStatus, 
+  uploadKycDocumentFile, 
+  submitKycForReview, 
+  KycStatus, 
+  KycRegion,
+  KycUploadDocumentType
+} from "@/services/kyc.service";
 import axios from "axios";
+
+interface UploadDocumentParams {
+  file: File;
+  docType: KycUploadDocumentType;
+  region: KycRegion;
+}
 
 interface KycState {
   kycStatuses: KycStatus[];
   loading: boolean;
   error: string | null;
   fetchKycStatus: () => Promise<void>;
-  uploadDocument: (payload: UploadDocumentPayload) => Promise<void>;
+  uploadDocument: (params: UploadDocumentParams) => Promise<void>;
   submitForReview: (region: KycRegion) => Promise<void>;
 }
 
@@ -28,19 +41,23 @@ const useKycStore = create<KycState>((set, get) => ({
       }
     }
   },
-  uploadDocument: async (payload: UploadDocumentPayload) => {
+  uploadDocument: async ({ file, docType, region }: UploadDocumentParams) => {
     set({ loading: true, error: null });
     try {
-      await uploadKycDocument(payload);
+      await uploadKycDocumentFile(file, docType, region);
+      // Refresh the status after a successful upload
       await get().fetchKycStatus();
     } catch (error: unknown) {
       set({ loading: false });
       if (axios.isAxiosError(error)) {
-        set({ error: error.response?.data?.error || "Failed to upload document" });
+        const errorMessage = error.response?.data?.message || "Failed to upload document";
+        set({ error: errorMessage });
+        throw new Error(errorMessage);
       } else {
-        set({ error: "An unexpected error occurred" });
+        const errorMessage = "An unexpected error occurred during upload";
+        set({ error: errorMessage });
+        throw new Error(errorMessage);
       }
-      throw error;
     }
   },
   submitForReview: async (region: KycRegion) => {

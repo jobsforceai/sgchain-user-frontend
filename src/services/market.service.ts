@@ -1,3 +1,4 @@
+import api from "./api";
 import axios from "axios";
 import { CandlestickData } from "lightweight-charts";
 import { MARKET_API_BASE_URL } from "./apiConfig";
@@ -34,5 +35,6 @@ export interface SgcPrice {
 }
 
 export const getSgcPrice = (): Promise<SgcPrice> => {
-  return marketApi.get("/market/sgc-price").then(r => r.data);
+  // This endpoint is not under /v1, so we use the main 'api' instance
+  return api.get("/market/sgc-price").then(r => r.data);
 };

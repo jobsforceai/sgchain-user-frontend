@@ -1,6 +1,7 @@
 import { create } from "zustand";
-import { fetchBankAccounts, submitDepositRequest, getBuySgcRequests, BankAccountRegion, SubmitDepositRequestPayload } from "@/services/buy.service";
+import { fetchBankAccounts, submitBuyRequest, getBuySgcRequests, instantBuySgc, BankAccountRegion, SubmitBuyRequestPayload } from "@/services/buy.service";
 import axios from "axios";
+import useWalletStore from "./wallet.store";
 
 interface BuySgcRequest {
   _id: string;
@@ -22,7 +23,8 @@ interface BuyState {
   loading: boolean;
   error: string | null;
   fetchBankAccounts: () => Promise<void>;
-  submitRequest: (payload: SubmitDepositRequestPayload) => Promise<void>;
+  submitRequest: (payload: SubmitBuyRequestPayload) => Promise<void>;
+  instantBuy: (sgcAmount: number) => Promise<any>;
   fetchRequests: (status?: 'PENDING' | 'APPROVED' | 'REJECTED') => Promise<void>;
 }
 
@@ -44,10 +46,10 @@ const useBuyStore = create<BuyState>((set) => ({
       }
     }
   },
-  submitRequest: async (payload: SubmitDepositRequestPayload) => {
+  submitRequest: async (payload: SubmitBuyRequestPayload) => {
     set({ loading: true, error: null });
     try {
-      await submitDepositRequest(payload);
+      await submitBuyRequest(payload);
       set({ loading: false });
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
@@ -56,6 +58,22 @@ const useBuyStore = create<BuyState>((set) => ({
         set({ error: "An unexpected error occurred", loading: false });
       }
       throw error; // Re-throw to be caught in the component
+    }
+  },
+  instantBuy: async (sgcAmount: number) => {
+    set({ loading: true, error: null });
+    try {
+      const result = await instantBuySgc(sgcAmount);
+      set({ loading: false });
+      // Refetch wallet balances after successful purchase
+      useWalletStore.getState().fetchWallet();
+      return result;
+    } catch (error: unknown) {
+      set({ loading: false });
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || "Failed to buy SGC");
+      }
+      throw new Error("An unexpected error occurred");
     }
   },
   fetchRequests: async (status?: 'PENDING' | 'APPROVED' | 'REJECTED') => {

@@ -17,7 +17,7 @@ const Tabs: React.FC<TabsProps> = ({ tabs }) => {
   return (
     <div>
       <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-6" aria-label="Tabs">
+        <nav className="-mb-px flex space-x-6 overflow-x-auto" aria-label="Tabs">
           {tabs.map((tab, index) => (
             <button
               key={tab.label}
@@ -26,7 +26,7 @@ const Tabs: React.FC<TabsProps> = ({ tabs }) => {
                 activeTab === index
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors`}
+              } whitespace-nowrap flex-shrink-0 py-4 px-3 border-b-2 font-medium text-sm transition-colors`}
             >
               {tab.label}
             </button>

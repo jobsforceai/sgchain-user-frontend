@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import useTokenStore from '@/stores/token.store';
-import { CreateTokenPayload, TokenLaunch } from '@/services/token.service';
+import { CreateTokenPayload, Token } from '@/services/token.service';
 import SGCButton from '../SGCButton';
 import Step1Details from './Step1Details';
 import Step2Supply from './Step2Supply';
@@ -14,11 +14,12 @@ import SGCCard from '../SGCCard';
 interface EditTokenFormProps {
   id: string;
   isViewOnly?: boolean;
+  onDraftUpdate?: () => void;
 }
 
 const steps = ['Details', 'Supply & Allocation', 'Vesting', 'Review & Deploy'];
 
-const EditTokenForm: React.FC<EditTokenFormProps> = ({ id, isViewOnly = false }) => {
+const EditTokenForm: React.FC<EditTokenFormProps> = ({ id, isViewOnly = false, onDraftUpdate }) => {
   const router = useRouter();
   const { currentToken, updateDraft, loading, error } = useTokenStore();
   const [activeStep, setActiveStep] = useState(0);
@@ -39,6 +40,9 @@ const EditTokenForm: React.FC<EditTokenFormProps> = ({ id, isViewOnly = false })
   const handleSave = async () => {
     if (formData) {
       await updateDraft(id, formData);
+      if (onDraftUpdate) {
+        onDraftUpdate();
+      }
     }
   };
 

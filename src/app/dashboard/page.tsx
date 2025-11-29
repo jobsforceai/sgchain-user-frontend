@@ -65,7 +65,7 @@ const DashboardPage: React.FC = () => {
         </AnimateGSAP>
       </div>
 
-      <div className="mb-8 grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+      <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
         <AnimateGSAP>
           <div className="w-full h-full">
             <LiveTransactions />

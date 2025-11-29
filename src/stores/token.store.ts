@@ -1,25 +1,25 @@
 import { create } from "zustand";
 import {
   listMyTokens,
-  createToken,
-  updateToken,
+  createTokenDraft,
+  updateTokenDraft,
   getTokenDetails,
-  deployToken,
-  TokenLaunch,
+  deployToken as deployTokenService, // alias to avoid name clash
+  Token,
   CreateTokenPayload,
 } from "@/services/token.service";
 import axios from "axios";
 
 interface TokenState {
-  tokens: TokenLaunch[];
-  currentToken: TokenLaunch | null;
+  tokens: Token[];
+  currentToken: Token | null;
   loading: boolean;
   error: string | null;
   fetchTokens: () => Promise<void>;
   getToken: (id: string) => Promise<void>;
-  createDraft: (payload: CreateTokenPayload) => Promise<TokenLaunch>;
+  createDraft: (payload: CreateTokenPayload) => Promise<Token>;
   updateDraft: (id: string, payload: Partial<CreateTokenPayload>) => Promise<void>;
-  deploy: (id: string) => Promise<void>;
+  deployToken: (id: string) => Promise<void>;
   clearCurrentToken: () => void;
 }
 
@@ -35,7 +35,7 @@ const useTokenStore = create<TokenState>((set, get) => ({
       set({ tokens: items, loading: false });
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        set({ error: error.response?.data?.error || "Failed to fetch tokens", loading: false });
+        set({ error: error.response?.data?.message || "Failed to fetch tokens", loading: false });
       } else {
         set({ error: "An unexpected error occurred", loading: false });
       }
@@ -48,7 +48,7 @@ const useTokenStore = create<TokenState>((set, get) => ({
         set({ currentToken: token, loading: false });
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          set({ error: error.response?.data?.error || "Failed to fetch token details", loading: false });
+          set({ error: error.response?.data?.message || "Failed to fetch token details", loading: false });
         } else {
           set({ error: "An unexpected error occurred", loading: false });
         }
@@ -57,13 +57,13 @@ const useTokenStore = create<TokenState>((set, get) => ({
   createDraft: async (payload: CreateTokenPayload) => {
     set({ loading: true, error: null });
     try {
-      const newDraft = await createToken(payload);
+      const newDraft = await createTokenDraft(payload);
       set({ loading: false });
       await get().fetchTokens(); // Refresh the list
       return newDraft;
     } catch (error) {
         if (axios.isAxiosError(error)) {
-            set({ error: error.response?.data?.error || "Failed to create draft", loading: false });
+            set({ error: error.response?.data?.message || "Failed to create draft", loading: false });
         } else {
             set({ error: "An unexpected error occurred", loading: false });
         }
@@ -73,26 +73,27 @@ const useTokenStore = create<TokenState>((set, get) => ({
   updateDraft: async (id: string, payload: Partial<CreateTokenPayload>) => {
     set({ loading: true, error: null });
     try {
-      const updatedToken = await updateToken(id, payload);
+      const updatedToken = await updateTokenDraft(id, payload);
       set({ currentToken: updatedToken, loading: false });
     } catch (error) {
         if (axios.isAxiosError(error)) {
-            set({ error: error.response?.data?.error || "Failed to update draft", loading: false });
+            set({ error: error.response?.data?.message || "Failed to update draft", loading: false });
         } else {
             set({ error: "An unexpected error occurred", loading: false });
         }
       throw error;
     }
   },
-  deploy: async (id: string) => {
+  deployToken: async (id: string) => {
     set({ loading: true, error: null });
     try {
-      const deployedToken = await deployToken(id);
-      set({ currentToken: deployedToken, loading: false });
+      await deployTokenService(id);
+      // After deploying, fetch the updated token details to reflect the new status
+      await get().getToken(id);
       await get().fetchTokens(); // Refresh list to show deployed status
     } catch (error) {
         if (axios.isAxiosError(error)) {
-            set({ error: error.response?.data?.error || "Failed to deploy token", loading: false });
+            set({ error: error.response?.data?.message || "Failed to deploy token", loading: false });
         } else {
             set({ error: "An unexpected error occurred", loading: false });
         }
