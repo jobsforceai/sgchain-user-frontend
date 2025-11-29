@@ -110,7 +110,11 @@ const RegisterPage: React.FC = () => {
                   />
                 </div>
 
-                <div className="text-sm text-slate-500">Password strength: <span className={`font-medium ${passwordStrength.color}`}>{passwordStrength.label}</span></div>
+                {password && (
+                  <div className="text-sm text-slate-500">
+                    Password strength: <span className={`font-medium ${passwordStrength.color}`}>{passwordStrength.label}</span>
+                  </div>
+                )}
 
                 {error && <p className="text-red-500 text-xs italic">{error}</p>}
 

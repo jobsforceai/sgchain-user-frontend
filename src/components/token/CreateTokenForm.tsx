@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import useTokenStore from '@/stores/token.store';
 import { CreateTokenPayload, TokenTier, TokenAllocation } from '@/services/token.service';
@@ -14,10 +14,10 @@ import { Check } from 'lucide-react';
 const STEPS = ['Details', 'Supply & Allocation', 'Vesting Schedule', 'Review & Create'];
 
 const Stepper: React.FC<{ currentStep: number }> = ({ currentStep }) => (
-  <div className="flex items-center justify-center mb-8 flex-wrap">
+  <div className="flex items-center mb-8 w-full overflow-x-auto pb-4">
     {STEPS.map((step, index) => (
       <React.Fragment key={step}>
-        <div className="flex flex-col items-center w-1/4 min-w-[80px]">
+        <div className="flex flex-col items-center flex-shrink-0" style={{ minWidth: '80px' }}>
           <div
             className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
               index < currentStep ? 'bg-green-500 text-white' : index === currentStep ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'
@@ -25,9 +25,9 @@ const Stepper: React.FC<{ currentStep: number }> = ({ currentStep }) => (
           >
             {index < currentStep ? <Check /> : index + 1}
           </div>
-          <p className={`mt-2 text-xs text-center ${index <= currentStep ? 'font-semibold text-gray-700' : 'text-gray-500'}`}>{step}</p>
+          <p className={`mt-2 text-xs text-center px-1 ${index <= currentStep ? 'font-semibold text-gray-700' : 'text-gray-500'}`}>{step}</p>
         </div>
-        {index < STEPS.length - 1 && <div className={`flex-1 h-1 mx-2 hidden sm:block ${index < currentStep ? 'bg-green-500' : 'bg-gray-200'}`} />}
+        {index < STEPS.length - 1 && <div className={`flex-1 h-1 mx-2 ${index < currentStep ? 'bg-green-500' : 'bg-gray-200'}`} style={{ minWidth: '20px' }} />}
       </React.Fragment>
     ))}
   </div>
@@ -37,6 +37,7 @@ const CreateTokenForm: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
   const { createDraft, loading, error } = useTokenStore();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
+  const [isStepValid, setIsStepValid] = useState(true); // Default to true for step 0
 
   const [formData, setFormData] = useState<CreateTokenPayload>({
     tier: 'FUN',
@@ -46,12 +47,19 @@ const CreateTokenForm: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
     vestingSchedules: [],
   });
 
+  // Manage step validity in an effect to prevent re-render loops
+  useEffect(() => {
+    // When moving to the complex step (Supply), default to invalid until the component validates itself
+    if (currentStep === 1) {
+      setIsStepValid(false);
+    } else {
+      // For all other simpler steps, assume they are valid
+      setIsStepValid(true);
+    }
+  }, [currentStep]);
+
   const handleNext = () => setCurrentStep(prev => Math.min(prev + 1, STEPS.length - 1));
   const handleBack = () => setCurrentStep(prev => Math.max(prev - 1, 0));
-
-  const updateFormData = (data: Partial<CreateTokenPayload>) => {
-    setFormData(prev => ({ ...prev, ...data }));
-  };
 
   const handleSubmit = async () => {
     try {
@@ -67,19 +75,22 @@ const CreateTokenForm: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
   const renderStep = () => {
     switch (currentStep) {
       case 0: return <Step1Details formData={formData} setFormData={setFormData} />;
-      case 1: return <Step2Supply formData={formData} setFormData={setFormData} />;
+      case 1: return <Step2Supply formData={formData} setFormData={setFormData} setIsValid={setIsStepValid} />;
       case 2: return <Step3Vesting formData={formData} setFormData={setFormData} />;
-      case 3: return (
-        <div>
-          <h3 className="text-lg font-semibold">Review Your Token</h3>
-          <div className="p-4 border rounded-md bg-gray-50 space-y-2 mt-4">
-            <p><strong>Name:</strong> {formData.metadata.name}</p>
-            <p><strong>Symbol:</strong> {formData.metadata.symbol}</p>
-            <p><strong>Total Supply:</strong> {Number(formData.supplyConfig.totalSupply).toLocaleString()}</p>
-            <p><strong>Tier:</strong> {formData.tier}</p>
+      case 3: 
+        const cost = formData.tier === 'FUN' ? '1 SGC' : '100 SGC (10 Fee + 90 Liquidity)';
+        return (
+          <div>
+            <h3 className="text-lg font-semibold">Review Your Token</h3>
+            <div className="p-4 border rounded-md bg-gray-50 space-y-2 mt-4">
+              <p><strong>Name:</strong> {formData.metadata.name}</p>
+              <p><strong>Symbol:</strong> {formData.metadata.symbol}</p>
+              <p><strong>Total Supply:</strong> {Number(formData.supplyConfig.totalSupply).toLocaleString()}</p>
+              <p><strong>Tier:</strong> {formData.tier}</p>
+              <p className="font-bold pt-2 border-t">Creation Cost: {cost}</p>
+            </div>
           </div>
-        </div>
-      );
+        );
       default: return null;
     }
   };
@@ -102,9 +113,9 @@ const CreateTokenForm: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
         <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
           <SGCButton onClick={onCancel} disabled={loading} className="bg-gray-200 text-gray-700 hover:bg-gray-300 w-full">Cancel</SGCButton>
           {currentStep < STEPS.length - 1 ? (
-            <SGCButton onClick={handleNext} className="w-full">Next</SGCButton>
+            <SGCButton onClick={handleNext} className="w-full" disabled={!isStepValid}>Next</SGCButton>
           ) : (
-            <SGCButton onClick={handleSubmit} disabled={loading} className="w-full">
+            <SGCButton onClick={handleSubmit} disabled={loading || !isStepValid} className="w-full">
               {loading ? 'Saving Draft...' : 'Save Draft & Continue'}
             </SGCButton>
           )}

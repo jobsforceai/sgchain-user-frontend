@@ -2,19 +2,19 @@
 
 import React, { useState } from 'react';
 import useWalletStore from '@/stores/wallet.store';
+import useUiStore from '@/stores/ui.store';
 import SGCButton from '../SGCButton';
 import SGCInput from '../SGCInput';
 
 const RedeemTransferForm: React.FC = () => {
   const { redeemTransfer, loading, error } = useWalletStore();
+  const { showToast, triggerConfetti } = useUiStore();
   const [transferCode, setTransferCode] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
-  const [formSuccess, setFormSuccess] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
-    setFormSuccess(null);
 
     if (!transferCode) {
       setFormError("Please enter a transfer code.");
@@ -23,21 +23,23 @@ const RedeemTransferForm: React.FC = () => {
 
     try {
       const { creditedUsdAmount } = await redeemTransfer(transferCode);
-      if (creditedUsdAmount) {
-        setFormSuccess(`Successfully redeemed $${creditedUsdAmount.toFixed(2)} USD!`);
-      } else {
-        setFormSuccess("Transfer redeemed successfully!");
-      }
+      const successMessage = creditedUsdAmount 
+        ? `Successfully redeemed $${creditedUsdAmount.toFixed(2)} USD!`
+        : "Transfer redeemed successfully!";
+      
+      showToast(successMessage, 'success');
+      triggerConfetti();
       setTransferCode('');
-    } catch (err) {
-      setFormError(error || "Failed to redeem transfer.");
+    } catch (err: any) {
+      // Use the friendly error from the interceptor, or a fallback
+      showToast(err.message || "Failed to redeem transfer.", 'error');
     }
   };
 
   return (
     <div className="max-w-md mx-auto">
         <p className="mb-4 text-sm text-gray-600">
-            Enter the transfer code you received from SGTrading or Sagenex to credit funds to your wallet.
+            Use a code from an exchange (e.g., SGTrading, Sagenex) to deposit funds into your wallet.
         </p>
         <form onSubmit={handleSubmit} className="space-y-4">
             <SGCInput
@@ -49,7 +51,6 @@ const RedeemTransferForm: React.FC = () => {
                 required
             />
             {formError && <p className="text-red-500 text-sm">{formError}</p>}
-            {formSuccess && <p className="text-green-500 text-sm">{formSuccess}</p>}
             <SGCButton type="submit" disabled={loading} variant="brand" className="w-full md:w-auto">
               {loading ? 'Redeeming...' : 'Redeem Transfer'}
             </SGCButton>

@@ -1,26 +1,26 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import useWalletStore from '@/stores/wallet.store';
 import useMarketStore from '@/stores/market.store';
+import useBuyStore from '@/stores/buy.store';
+import useUiStore from '@/stores/ui.store'; // Import the new UI store
 import SGCButton from '../SGCButton';
 import SGCInput from '../SGCInput';
 import SGCCard from '../SGCCard';
 import { ArrowDownUp } from 'lucide-react';
 
-const SellSGCForm: React.FC = () => {
-  const { wallet, sellSgc, loading, error, fetchWallet } = useWalletStore();
+const InstantBuySGCForm: React.FC = () => {
+  const { wallet } = useWalletStore();
   const { livePrice } = useMarketStore();
+  const { instantBuy, loading } = useBuyStore();
+  const { showToast, triggerConfetti } = useUiStore(); // Get UI actions
 
   const [sgcAmount, setSgcAmount] = useState('');
   const [usdAmount, setUsdAmount] = useState('');
-  
-  const [formError, setFormError] = useState<string | null>(null);
-  const [formSuccess, setFormSuccess] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchWallet();
-  }, [fetchWallet]);
+  // Local form validation error, separate from API errors
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const handleSgcChange = (value: string) => {
     setSgcAmount(value);
@@ -44,42 +44,44 @@ const SellSGCForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError(null);
-    setFormSuccess(null);
+    setValidationError(null);
 
-    const amount = parseFloat(sgcAmount);
-    if (isNaN(amount) || amount <= 0) {
-      setFormError("Please enter a valid amount.");
+    const amountSGC = parseFloat(sgcAmount);
+    if (isNaN(amountSGC) || amountSGC <= 0) {
+      setValidationError("Please enter a valid SGC amount.");
       return;
     }
 
-    if (wallet && amount > wallet.sgcBalance) {
-      setFormError("Amount exceeds your available SGC balance.");
+    const costUSD = parseFloat(usdAmount);
+    if (wallet && costUSD > wallet.fiatBalanceUsd) {
+      setValidationError("Amount exceeds your available USD balance.");
       return;
     }
 
     try {
-      await sellSgc(amount);
-      setFormSuccess("Sell order executed successfully!");
+      const result = await instantBuy(amountSGC);
+      // Use global UI store for feedback
+      showToast(`Successfully bought ${result.boughtSgcAmount.toFixed(4)} SGC!`, 'success');
+      triggerConfetti();
       setSgcAmount('');
       setUsdAmount('');
     } catch (err: any) {
-      // The error message is now user-friendly thanks to the global interceptor
-      setFormError(err.message || "Sell failed. Please try again.");
+      // API errors are now handled by the interceptor, but we catch to show toast
+      showToast(err.message || "Buy failed. Please try again.", 'error');
     }
   };
 
   return (
     <div className="max-w-md mx-auto">
-      <SGCCard className="mb-6" title="Available SGC Balance">
-        <p className="text-2xl font-bold text-gray-800">{wallet?.sgcBalance?.toFixed(4) || '0.0000'} SGC</p>
+      <SGCCard className="mb-6" title="Available USD Balance">
+        <p className="text-2xl font-bold text-gray-800">${wallet?.fiatBalanceUsd?.toFixed(2) || '0.00'}</p>
       </SGCCard>
       <form onSubmit={handleSubmit} className="space-y-4">
         <SGCInput
-          label="Amount of SGC to Sell"
+          label="USD to Spend"
           type="number"
-          value={sgcAmount}
-          onChange={(e) => handleSgcChange(e.target.value)}
+          value={usdAmount}
+          onChange={(e) => handleUsdChange(e.target.value)}
           required
         />
 
@@ -88,21 +90,20 @@ const SellSGCForm: React.FC = () => {
         </div>
 
         <SGCInput
-          label="USD to Receive (est.)"
+          label="SGC to Receive (est.)"
           type="number"
-          value={usdAmount}
-          onChange={(e) => handleUsdChange(e.target.value)}
+          value={sgcAmount}
+          onChange={(e) => handleSgcChange(e.target.value)}
           required
         />
         
         {livePrice && <p className="text-xs text-gray-500 text-center -mt-2">1 SGC ≈ ${livePrice.toFixed(2)} USD</p>}
 
-        {formError && <p className="text-red-500 text-sm mt-4">{formError}</p>}
-        {formSuccess && <p className="text-green-500 text-sm mt-4">{formSuccess}</p>}
+        {validationError && <p className="text-red-500 text-sm mt-4">{validationError}</p>}
         
         <div className="pt-2">
           <SGCButton type="submit" disabled={loading} variant="brand" className="w-full md:w-auto">
-            {loading ? 'Processing...' : 'Sell SGC'}
+            {loading ? 'Processing...' : 'Buy SGC Instantly'}
           </SGCButton>
         </div>
       </form>
@@ -110,4 +111,4 @@ const SellSGCForm: React.FC = () => {
   );
 };
 
-export default SellSGCForm;
+export default InstantBuySGCForm;

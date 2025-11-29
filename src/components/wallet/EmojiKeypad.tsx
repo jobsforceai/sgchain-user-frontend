@@ -92,15 +92,15 @@ const EmojiKeypad: React.FC<EmojiKeypadProps> = ({ onKeyPress, disabled = false 
         />
       </div>
       
-      <div className="mb-3 overflow-auto">
-        <div className="flex justify-center gap-2 border-b pb-2">
+      <div className="mb-3 overflow-x-auto">
+        <div className="flex justify-start gap-2 border-b pb-2">
           {groups.map((g, idx) => {
             const renderIcon = categoryIcons[g.name];
             return (
               <button
                 key={g.name}
                 onClick={() => { setActiveGroupIdx(idx); setSearch(''); }}
-                className={`p-2 rounded-full transition-colors ${idx === activeGroupIdx ? 'bg-gray-200' : 'bg-transparent hover:bg-gray-100'}`}
+                className={`flex-shrink-0 p-2 rounded-full transition-colors ${idx === activeGroupIdx ? 'bg-gray-200' : 'bg-transparent hover:bg-gray-100'}`}
                 title={g.name} // Tooltip for accessibility
               >
                 {renderIcon ? renderIcon() : g.name.charAt(0)}

@@ -23,7 +23,7 @@ const DashboardPage: React.FC = () => {
   const { wallet, fetchWallet } = useWalletStore();
   const { logout } = useAuthStore();
   const router = useRouter();
-  const { livePrice, fetchHistoricalData, subscribeToLiveUpdates, unsubscribeFromLiveUpdates } = useMarketStore();
+  const { livePrice, fetchInitialPrice, fetchHistoricalData, subscribeToLiveUpdates, unsubscribeFromLiveUpdates } = useMarketStore();
 
   useEffect(() => {
     fetchWallet().catch((error: any) => {
@@ -37,18 +37,18 @@ const DashboardPage: React.FC = () => {
 
   useEffect(() => {
     const symbol = 'sgc';
+    fetchInitialPrice();
     fetchHistoricalData(symbol);
     subscribeToLiveUpdates(symbol);
 
     return () => {
       unsubscribeFromLiveUpdates(symbol);
     };
-  }, [fetchHistoricalData, subscribeToLiveUpdates, unsubscribeFromLiveUpdates]);
+  }, [fetchInitialPrice, fetchHistoricalData, subscribeToLiveUpdates, unsubscribeFromLiveUpdates]);
 
   const tabs = [
     { label: 'History', content: <HistoryTab /> },
   ];
-
   const chartTitle = `SGC Price (USD) ${livePrice ? `$${livePrice.toFixed(2)}` : ''}`;
 
   return (
@@ -65,7 +65,7 @@ const DashboardPage: React.FC = () => {
         </AnimateGSAP>
       </div>
 
-      <div className="mb-8 grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+      <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
         <AnimateGSAP>
           <div className="w-full h-full">
             <LiveTransactions />

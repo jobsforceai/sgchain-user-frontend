@@ -19,10 +19,6 @@ const CreateTokenPage: React.FC = () => {
               <h1 className="text-2xl md:text-3xl font-bold">Create & Manage Tokens</h1>
               <p className="text-sm text-slate-600">Launch tokens, manage drafts, and view status.</p>
             </div>
-
-            <div>
-              <SGCButton onClick={() => setIsCreating(s => !s)} className="w-full md:w-auto">{isCreating ? 'Close' : 'Create Token'}</SGCButton>
-            </div>
           </div>
         </AnimateGSAP>
       </div>
