@@ -81,7 +81,7 @@ const BuySGCForm: React.FC = () => {
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Step 1: Bank Details</h3>
         <p className="text-sm text-gray-500 mb-4">Transfer the required funds to the bank details below. Then, enter the **USD equivalent** of your deposit in the form.</p>
         <div className="space-y-4">
-          {bankAccounts.map(acc => (
+          {bankAccounts.filter(acc => acc.region.toLowerCase() !== 'india').map(acc => (
             <div key={acc.region} className="bg-gray-50 p-4 rounded-md border">
               <h4 className="font-bold text-gray-800">{acc.region} ({acc.fiatCurrency})</h4>
               <p><strong>Bank:</strong> {acc.bankName}</p>
@@ -101,7 +101,7 @@ const BuySGCForm: React.FC = () => {
             required
           >
             <option value="" disabled>Select Bank Region of Deposit</option>
-            {bankAccounts.map(acc => <option key={acc.region} value={acc.region}>{acc.region}</option>)}
+            {bankAccounts.filter(acc => acc.region.toLowerCase() !== 'india').map(acc => <option key={acc.region} value={acc.region}>{acc.region}</option>)}
           </select>
           
           <SGCInput 
