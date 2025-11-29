@@ -54,7 +54,7 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center bg-gradient-to-b from-white to-slate-50 py-12">
+    <div className="min-h-screen flex items-center bg-linear-to-b from-white to-slate-50 py-12">
       <div className="max-w-6xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
 
