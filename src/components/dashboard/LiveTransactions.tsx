@@ -6,17 +6,19 @@ import SGCCard from '../SGCCard';
 import Tabs from '../Tabs';
 import { CubeIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
 
-const LiveTransactions: React.FC = () => {
+interface LiveTransactionsProps {
+  onHashClick: (hash: string) => void;
+}
+
+const LiveTransactions: React.FC<LiveTransactionsProps> = ({ onHashClick }) => {
   const { pendingTransactions, recentBlocks, isConnected, connect, disconnect } = useTransactionStore();
 
   useEffect(() => {
-    console.log('[LiveTransactions] Mounting and connecting WebSocket...');
     connect();
     return () => {
-      console.log('[LiveTransactions] Unmounting and disconnecting WebSocket...');
       disconnect();
     };
-  }, []);
+  }, [connect, disconnect]);
 
   const formatTimestamp = (hexTimestamp: string) => {
     if (!hexTimestamp) return 'N/A';
@@ -36,7 +38,10 @@ const LiveTransactions: React.FC = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {pendingTransactions.map((tx, index) => (
               <tr key={`${tx.hash}-${index}`} className="animate-fade-in">
-                <td className="px-4 py-4 whitespace-normal break-all text-xs sm:text-sm font-mono text-gray-700 hover:text-blue-600 transition-colors">
+                <td 
+                  className="px-4 py-4 whitespace-normal break-all text-xs sm:text-sm font-mono text-gray-700 hover:text-blue-600 transition-colors cursor-pointer"
+                  onClick={() => onHashClick(tx.hash)}
+                >
                   {tx.hash}
                 </td>
               </tr>
@@ -53,11 +58,9 @@ const LiveTransactions: React.FC = () => {
 
   const LatestBlocksView = () => {
     const containerRef = useRef<HTMLDivElement | null>(null);
-    // Render oldest first so newest appears at the bottom
     const blocks = [...recentBlocks].reverse();
 
     useEffect(() => {
-      // Auto-scroll to bottom when new blocks arrive
       if (containerRef.current) {
         containerRef.current.scrollTop = containerRef.current.scrollHeight;
       }
@@ -67,21 +70,10 @@ const LiveTransactions: React.FC = () => {
       <div ref={containerRef} className="relative h-80 overflow-y-auto p-1 space-y-2">
         {blocks.length > 0 ? (
           blocks.map((block, index) => {
-            const total = blocks.length;
-            const weight = total > 1 ? index / (total - 1) : 1; // 0..1, oldest->newest
-            const opacity = 0.6 + weight * 0.4; // newer = more opaque
-            const scale = 0.95 + weight * 0.05; // newer = slightly larger
-            const animationDelay = `${index * 80}ms`;
-
             return (
               <div
                 key={block.hash + index}
                 className="p-3 bg-white/80 border border-gray-200/80 rounded-lg shadow-sm animate-fade-in-down transition-all duration-300"
-                style={{
-                  animationDelay,
-                  opacity,
-                  transform: `scale(${scale})`,
-                }}
               >
                 <div className="flex flex-col sm:flex-row justify-between items-start">
                   <div className="flex items-center gap-3">
@@ -100,7 +92,11 @@ const LiveTransactions: React.FC = () => {
                     <DocumentDuplicateIcon className="h-3 w-3" />
                     Block Hash
                   </p>
-                  <p className="font-mono text-xs break-all text-gray-600">{block.hash}</p>
+                  <p 
+                    className="font-mono text-xs break-all text-gray-600"
+                  >
+                    {block.hash}
+                  </p>
                 </div>
               </div>
             );
