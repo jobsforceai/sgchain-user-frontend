@@ -42,13 +42,16 @@ const SGCInput: React.FC<SGCInputProps> = ({ label, type, options = [], ...props
     );
   }
 
+  const hasValue = value != null && value.toString().length > 0;
+  const isLabelUp = isFocused || hasValue;
+
   // Floating label for text-like inputs
   return (
     <div className="relative mb-4">
       <label
         htmlFor={props.id}
         className={`absolute left-3 transition-all duration-200 pointer-events-none ${
-          isFocused || value
+          isLabelUp
             ? 'top-1 text-xs text-gray-500'
             : 'top-1/2 -translate-y-1/2 text-gray-400'
         }`}
@@ -58,6 +61,7 @@ const SGCInput: React.FC<SGCInputProps> = ({ label, type, options = [], ...props
       <input
         {...(props as React.InputHTMLAttributes<HTMLInputElement>)}
         type={type}
+        placeholder={isLabelUp ? props.placeholder : ''}
         onFocus={handleFocus}
         onBlur={handleBlur}
         className="w-full px-3 pt-5 pb-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shadow appearance-none text-gray-700 leading-tight"
