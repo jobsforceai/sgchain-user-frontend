@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 
 import SGCBalanceCard from '@/components/SGCBalanceCard';
@@ -13,6 +13,8 @@ import AnimateGSAP from '@/components/AnimateGSAP';
 import useAuthStore from '@/stores/auth.store';
 import useWalletStore from '@/stores/wallet.store';
 import useMarketStore from '@/stores/market.store';
+import useExplorerStore from '@/stores/explorer.store';
+import TransactionDetailModal from '@/components/dashboard/TransactionDetailModal';
 
 const SGCPriceChart = dynamic(() => import('@/components/dashboard/SGCPriceChart'), {
   ssr: false,
@@ -24,6 +26,9 @@ const DashboardPage: React.FC = () => {
   const { logout } = useAuthStore();
   const router = useRouter();
   const { livePrice, fetchInitialPrice, fetchHistoricalData, subscribeToLiveUpdates, unsubscribeFromLiveUpdates } = useMarketStore();
+  const { fetchTransaction } = useExplorerStore();
+  
+  const [isTxModalOpen, setIsTxModalOpen] = useState(false);
 
   useEffect(() => {
     fetchWallet().catch((error: any) => {
@@ -45,6 +50,11 @@ const DashboardPage: React.FC = () => {
       unsubscribeFromLiveUpdates(symbol);
     };
   }, [fetchInitialPrice, fetchHistoricalData, subscribeToLiveUpdates, unsubscribeFromLiveUpdates]);
+
+  const handleHashClick = (hash: string) => {
+    fetchTransaction(hash);
+    setIsTxModalOpen(true);
+  };
 
   const tabs = [
     { label: 'History', content: <HistoryTab /> },
@@ -68,7 +78,7 @@ const DashboardPage: React.FC = () => {
       <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
         <AnimateGSAP>
           <div className="w-full h-full">
-            <LiveTransactions />
+            <LiveTransactions onHashClick={handleHashClick} />
           </div>
         </AnimateGSAP>
 
@@ -87,6 +97,7 @@ const DashboardPage: React.FC = () => {
         </SGCCard>
       </AnimateGSAP>
       
+      <TransactionDetailModal isOpen={isTxModalOpen} onClose={() => setIsTxModalOpen(false)} />
     </div>
   );
 };

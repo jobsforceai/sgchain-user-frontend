@@ -33,7 +33,7 @@ const ApiCard2 = () => {
             <div className='md:w-1/2 w-full flex flex-col justify-center items-center gap-4 px-6 md:px-8'>
                 <h2 className='text-center md:text-left'>We are committed to providing a best-in-class developer experience. Our API is designed to be intuitive and flexible, supported by comprehensive documentation that makes integration straightforward. Start building the future of digital finance today.
                 </h2>
-                <SGCBlackButton name="Documentation" link="/login" />
+                <SGCBlackButton name="Documentation" link="/docs" />
             </div>
         </div>
     )

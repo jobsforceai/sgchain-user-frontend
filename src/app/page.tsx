@@ -6,7 +6,6 @@ import CoinHeading from "@/components/landing/CoinHeading";
 import Footer from "@/components/landing/Footer";
 import HeroSection from "@/components/landing/HeroSection";
 import Liquidity from "@/components/landing/Liquidity";
-import Liquiditycontainers from "@/components/landing/Liquiditycontainers";
 import Partners from "@/components/landing/Partners";
 import RegisterCompany from "@/components/landing/RegisterCompany";
 import VerticalDashedLayout from "@/components/landing/VerticalDashedLayout";
@@ -59,9 +58,6 @@ export default function Home() {
         <section id="liquidity">
           <AnimateGSAP>
             <Liquidity />
-          </AnimateGSAP>
-          <AnimateGSAP>
-            <Liquiditycontainers />
           </AnimateGSAP>
         </section>
 

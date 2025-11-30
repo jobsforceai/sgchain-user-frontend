@@ -9,6 +9,8 @@ import { register } from '@/services/auth.service';
 import AnimateGSAP from '@/components/AnimateGSAP';
 import Image from 'next/image';
 import Link from 'next/link';
+import axios from 'axios';
+import useUiStore from '@/stores/ui.store';
 
 const calculateStrength = (password: string) => {
   let score = 0;
@@ -25,6 +27,7 @@ const calculateStrength = (password: string) => {
 
 const RegisterPage: React.FC = () => {
   const router = useRouter();
+  const { showToast } = useUiStore();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -45,9 +48,14 @@ const RegisterPage: React.FC = () => {
     setError(null);
     try {
       await register(fullName, email, password);
+      showToast('Registration successful! Please log in.', 'success');
       router.push('/login');
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'An unexpected error occurred.');
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || 'An unexpected error occurred.');
+      } else {
+        setError('An unexpected error occurred.');
+      }
     } finally {
       setLoading(false);
     }
