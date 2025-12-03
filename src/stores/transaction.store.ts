@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import socketService from "@/services/socket.service";
+import explorerService, { Transaction } from "@/services/explorer.service";
 
 // --- Module-level variables to manage the singleton socket connection ---
 let connectionCounter = 0;
@@ -25,22 +26,27 @@ interface BlockHeader {
   transactionsRoot: string;
 }
 
-interface NewTransactionEvent {
-  hash: string;
-}
-
 interface TransactionState {
-  pendingTransactions: NewTransactionEvent[];
+  recentTransactions: Transaction[];
   recentBlocks: BlockHeader[];
   isConnected: boolean;
   connect: () => void;
   disconnect: () => void;
+  fetchRecentTransactions: () => void;
 }
 
 const useTransactionStore = create<TransactionState>((set, get) => ({
-  pendingTransactions: [],
+  recentTransactions: [],
   recentBlocks: [],
   isConnected: false,
+  fetchRecentTransactions: async () => {
+    try {
+      const transactions = await explorerService.fetchRecentTransactions();
+      set({ recentTransactions: transactions });
+    } catch (error) {
+      console.error('Failed to fetch recent transactions:', error);
+    }
+  },
   connect: () => {
     // If a disconnect is scheduled, cancel it
     if (disconnectTimeout) {
@@ -56,6 +62,7 @@ const useTransactionStore = create<TransactionState>((set, get) => ({
     if (connectionCounter === 1) {
       console.log("[TransactionStore] First component mounted. Connecting socket...");
       socketService.connect();
+      get().fetchRecentTransactions();
     }
 
     // Ensure listeners are set up only once
@@ -73,15 +80,9 @@ const useTransactionStore = create<TransactionState>((set, get) => ({
         set({ isConnected: false });
       });
 
-      socketService.on("NEW_TRANSACTION", (newTransaction: NewTransactionEvent) => {
-        console.log("[TransactionStore] New Transaction Received:", newTransaction);
-        set((state) => ({
-          pendingTransactions: [newTransaction, ...state.pendingTransactions].slice(0, 50),
-        }));
-      });
-
       socketService.on("NEW_BLOCK", (newBlock: BlockHeader) => {
         console.log("[TransactionStore] New Block Received:", newBlock);
+        get().fetchRecentTransactions();
         set((state) => ({
           recentBlocks: [newBlock, ...state.recentBlocks].slice(0, 6),
         }));
@@ -101,7 +102,7 @@ const useTransactionStore = create<TransactionState>((set, get) => ({
         socketService.disconnect();
         // Clean up listeners and state
         listenersInitialized = false; 
-        set({ isConnected: false, pendingTransactions: [], recentBlocks: [] });
+        set({ isConnected: false, recentTransactions: [], recentBlocks: [] });
       }
     }, 100); // 100ms delay to bridge the Strict Mode mount/unmount gap
   },

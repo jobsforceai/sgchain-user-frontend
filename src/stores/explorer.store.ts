@@ -1,9 +1,9 @@
 import { create } from "zustand";
-import { getTransactionByHash, TransactionDetails } from "@/services/explorer.service";
+import explorerService, { Transaction } from "@/services/explorer.service";
 import axios from "axios";
 
 interface ExplorerState {
-  transactionDetails: TransactionDetails | null;
+  transactionDetails: Transaction | null;
   loading: boolean;
   error: string | null;
   fetchTransaction: (hash: string) => Promise<void>;
@@ -17,7 +17,7 @@ const useExplorerStore = create<ExplorerState>((set) => ({
   fetchTransaction: async (hash: string) => {
     set({ loading: true, error: null, transactionDetails: null });
     try {
-      const details = await getTransactionByHash(hash);
+      const details = await explorerService.fetchTransaction(hash);
       set({ transactionDetails: details, loading: false });
     } catch (error) {
       if (axios.isAxiosError(error)) {

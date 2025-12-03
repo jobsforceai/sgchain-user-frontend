@@ -1,19 +1,30 @@
-import api from "./api";
+import api from './api';
 
-export interface TransactionDetails {
+export interface Transaction {
   hash: string;
   from: string;
   to: string;
   value: string;
-  blockNumber: number;
+  blockNumber: number | null;
   timestamp: number;
-  status: 'SUCCESS' | 'FAILED' | 'PENDING';
+  status: 'SUCCESS' | 'PENDING' | 'FAILED' | 'UNKNOWN';
   gasUsed: string;
   gasPrice: string;
-  confirmations?: number;
-  nonce?: number;
-  data?: string;
 }
 
-export const getTransactionByHash = (hash: string): Promise<TransactionDetails> =>
-  api.get(`/explorer/tx/${hash}`).then(r => r.data);
+const fetchTransaction = async (hash: string): Promise<Transaction> => {
+  const response = await api.get(`/explorer/tx/${hash}`);
+  return response.data;
+};
+
+const fetchRecentTransactions = async (): Promise<Transaction[]> => {
+    const response = await api.get('/explorer/recent-txs');
+    return response.data;
+};
+
+const explorerService = {
+  fetchTransaction,
+  fetchRecentTransactions
+};
+
+export default explorerService;
