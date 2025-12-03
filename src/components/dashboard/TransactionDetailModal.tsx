@@ -5,7 +5,7 @@ import useExplorerStore from '@/stores/explorer.store';
 import Modal from '../Modal';
 import SGCButton from '../SGCButton';
 import SGCCard from '../SGCCard';
-import { CheckCircle2, AlertCircle, Clock, Loader } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Clock, Loader, HelpCircle } from 'lucide-react';
 
 interface TransactionDetailModalProps {
   isOpen: boolean;
@@ -19,11 +19,12 @@ const DetailRow: React.FC<{ label: string; value: React.ReactNode; isHash?: bool
   </div>
 );
 
-const StatusBadge: React.FC<{ status: 'SUCCESS' | 'FAILED' | 'PENDING' }> = ({ status }) => {
+const StatusBadge: React.FC<{ status: 'SUCCESS' | 'FAILED' | 'PENDING' | 'UNKNOWN' }> = ({ status }) => {
   const styles = {
     SUCCESS: { icon: <CheckCircle2 size={16} />, color: 'bg-green-100 text-green-800' },
     FAILED: { icon: <AlertCircle size={16} />, color: 'bg-red-100 text-red-800' },
     PENDING: { icon: <Clock size={16} />, color: 'bg-yellow-100 text-yellow-800' },
+    UNKNOWN: { icon: <HelpCircle size={16} />, color: 'bg-gray-100 text-gray-800' },
   };
   const current = styles[status] || styles.PENDING;
   return (

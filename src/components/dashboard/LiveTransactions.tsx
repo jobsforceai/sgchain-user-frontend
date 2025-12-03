@@ -11,7 +11,7 @@ interface LiveTransactionsProps {
 }
 
 const LiveTransactions: React.FC<LiveTransactionsProps> = ({ onHashClick }) => {
-  const { pendingTransactions, recentBlocks, isConnected, connect, disconnect } = useTransactionStore();
+  const { recentTransactions, recentBlocks, isConnected, connect, disconnect } = useTransactionStore();
 
   useEffect(() => {
     connect();
@@ -25,24 +25,35 @@ const LiveTransactions: React.FC<LiveTransactionsProps> = ({ onHashClick }) => {
     const timestamp = parseInt(hexTimestamp, 16) * 1000;
     return new Date(timestamp).toLocaleString();
   };
+  
+  const shortenAddress = (address: string) => {
+    if (!address) return '';
+    return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+  }
 
-  const PendingTransactionsView = () => (
+  const RecentTransactionsView = () => (
     <div className="relative h-80 overflow-y-auto">
-      {pendingTransactions.length > 0 ? (
+      {recentTransactions.length > 0 ? (
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50/70 backdrop-blur-sm sticky top-0">
             <tr>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">From</th>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">To</th>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction Hash</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {pendingTransactions.map((tx, index) => (
+            {recentTransactions.map((tx, index) => (
               <tr key={`${tx.hash}-${index}`} className="animate-fade-in">
+                <td className="px-4 py-4 whitespace-nowrap text-xs sm:text-sm font-mono text-gray-700">{shortenAddress(tx.from)}</td>
+                <td className="px-4 py-4 whitespace-nowrap text-xs sm:text-sm font-mono text-gray-700">{shortenAddress(tx.to)}</td>
+                <td className="px-4 py-4 whitespace-nowrap text-xs sm:text-sm font-mono text-gray-700">{parseFloat(tx.value).toFixed(4)} SGC</td>
                 <td 
                   className="px-4 py-4 whitespace-normal break-all text-xs sm:text-sm font-mono text-gray-700 hover:text-blue-600 transition-colors cursor-pointer"
                   onClick={() => onHashClick(tx.hash)}
                 >
-                  {tx.hash}
+                  {shortenAddress(tx.hash)}
                 </td>
               </tr>
             ))}
@@ -50,7 +61,7 @@ const LiveTransactions: React.FC<LiveTransactionsProps> = ({ onHashClick }) => {
         </table>
       ) : (
         <div className="absolute inset-0 flex items-center justify-center">
-          <p className="text-gray-500">Waiting for new transactions...</p>
+          <p className="text-gray-500">No recent transactions found.</p>
         </div>
       )}
     </div>
@@ -112,7 +123,7 @@ const LiveTransactions: React.FC<LiveTransactionsProps> = ({ onHashClick }) => {
 
   const tabs = [
     { label: 'Latest Blocks', content: <LatestBlocksView /> },
-    { label: 'Pending Transactions', content: <PendingTransactionsView /> },
+    { label: 'Recent Transactions', content: <RecentTransactionsView /> },
   ];
 
   return (
